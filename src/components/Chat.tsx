@@ -33,17 +33,6 @@ O NeoTalk nasceu para tornar o campus mais acessível por meio da tecnologia.
 Aqui, qualquer pessoa pode se orientar com autonomia, inclusão e inovação, utilizando Libras, texto ou áudio.
 
 Mais que mapas, criamos conexões. 🌐`,
-    next: 'introduction'
-  },
-  
-  introduction: {
-    type: 'message',
-    avatar: 'lia',
-    message: `Olá, eu sou a Lia.
-O NeoTalk é uma tecnologia assistiva criada para deixar o prédio Ernando Pinheiro 100% acessível em Libras.
-Aqui, o chat responde dúvidas sobre salas, banheiros, saídas de emergência e muito mais — tudo em Libras, texto ou áudio, como você preferir.
-
-Seu acesso, sua autonomia. Vamos começar?`,
     next: 'menu_principal'
   },
   
