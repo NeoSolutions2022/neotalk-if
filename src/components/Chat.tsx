@@ -28,7 +28,11 @@ const chatFlow: Record<string, ChatState> = {
   start: {
     type: 'message',
     avatar: 'lia',
-    message: 'Seja bem-vindo!',
+    message: `👋 Bem-vindo(a) ao Mapa Interativo Acessível do IFCE Fortaleza.
+O NeoTalk nasceu para tornar o campus mais acessível por meio da tecnologia.
+Aqui, qualquer pessoa pode se orientar com autonomia, inclusão e inovação, utilizando Libras, texto ou áudio.
+
+Mais que mapas, criamos conexões. 🌐`,
     next: 'introduction'
   },
   
@@ -165,7 +169,7 @@ const Chat: React.FC = () => {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="w-full">
           <img
-            src="/lovable-uploads/IFCE.PNG"
+            src="/lovable-uploads/IFCE.png"
             alt="Mapa do IFCE"
             className="w-full max-w-md mx-auto rounded-lg shadow"
           />
