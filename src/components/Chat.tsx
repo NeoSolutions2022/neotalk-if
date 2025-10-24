@@ -28,18 +28,11 @@ const chatFlow: Record<string, ChatState> = {
   start: {
     type: 'message',
     avatar: 'lia',
-    message: 'Seja bem-vindo!',
-    next: 'introduction'
-  },
-  
-  introduction: {
-    type: 'message',
-    avatar: 'lia',
-    message: `Olá, eu sou a Lia.
-O NeoTalk é uma tecnologia assistiva criada para deixar o prédio Ernando Pinheiro 100% acessível em Libras.
-Aqui, o chat responde dúvidas sobre salas, banheiros, saídas de emergência e muito mais — tudo em Libras, texto ou áudio, como você preferir.
+    message: `👋 Bem-vindo(a) ao Mapa Interativo Acessível do IFCE Fortaleza.
+O NeoTalk nasceu para tornar o campus mais acessível por meio da tecnologia.
+Aqui, qualquer pessoa pode se orientar com autonomia, inclusão e inovação, utilizando Libras, texto ou áudio.
 
-Seu acesso, sua autonomia. Vamos começar?`,
+Mais que mapas, criamos conexões. 🌐`,
     next: 'menu_principal'
   },
   
@@ -165,7 +158,7 @@ const Chat: React.FC = () => {
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="w-full">
           <img
-            src="/lovable-uploads/IFCE.PNG"
+            src="/lovable-uploads/IFCE.png"
             alt="Mapa do IFCE"
             className="w-full max-w-md mx-auto rounded-lg shadow"
           />
