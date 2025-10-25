@@ -28,18 +28,11 @@ const chatFlow: Record<string, ChatState> = {
   start: {
     type: 'message',
     avatar: 'lia',
-    message: 'Seja bem-vindo!',
-    next: 'introduction'
-  },
-  
-  introduction: {
-    type: 'message',
-    avatar: 'lia',
-    message: `Olá, eu sou a Lia.
-O NeoTalk é uma tecnologia assistiva criada para deixar o prédio Ernando Pinheiro 100% acessível em Libras.
-Aqui, o chat responde dúvidas sobre salas, banheiros, saídas de emergência e muito mais — tudo em Libras, texto ou áudio, como você preferir.
+    message: `👋 Bem-vindo(a) ao Mapa Interativo Acessível do IFCE Fortaleza.
+O NeoTalk nasceu para tornar o campus mais acessível por meio da tecnologia.
+Aqui, qualquer pessoa pode se orientar com autonomia, inclusão e inovação, utilizando Libras, texto ou áudio.
 
-Seu acesso, sua autonomia. Vamos começar?`,
+Mais que mapas, criamos conexões. 🌐`,
     next: 'menu_principal'
   },
   
@@ -98,6 +91,7 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Array<{ id: string; message: string; isBot: boolean }>>([]);
   const [showOptions, setShowOptions] = useState(false);
   const [floatingVideoUrl, setFloatingVideoUrl] = useState('https://vimeo.com/1129591813');
+  const [isMapExpanded, setIsMapExpanded] = useState(false);
 
   React.useEffect(() => {
     const state = chatFlow[currentState];
@@ -147,6 +141,19 @@ const Chat: React.FC = () => {
     setCurrentState(nextState);
   };
 
+  React.useEffect(() => {
+    if (!isMapExpanded) return;
+
+    const handleKeyDown = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMapExpanded(false);
+      }
+    };
+
+    window.addEventListener('keydown', handleKeyDown);
+    return () => window.removeEventListener('keydown', handleKeyDown);
+  }, [isMapExpanded]);
+
   const currentChatState = chatFlow[currentState];
 
   return (
@@ -164,11 +171,18 @@ const Chat: React.FC = () => {
       {/* Messages and Maps */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
         <div className="w-full">
-          <img
-            src="/lovable-uploads/IFCE.PNG"
-            alt="Mapa do IFCE"
-            className="w-full max-w-md mx-auto rounded-lg shadow"
-          />
+          <button
+            type="button"
+            onClick={() => setIsMapExpanded(true)}
+            className="w-full max-w-md mx-auto block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
+            aria-label="Ampliar mapa do IFCE"
+          >
+            <img
+              src="/lovable-uploads/IFCE.png"
+              alt="Mapa do IFCE"
+              className="w-full rounded-lg shadow cursor-zoom-in"
+            />
+          </button>
         </div>
 
         {messages.map((msg) => (
@@ -200,15 +214,43 @@ const Chat: React.FC = () => {
       )}
 
       {/* Floating Video */}
-      <FloatingVideo 
-        videoUrl={floatingVideoUrl} 
-        showOptions={showOptions} 
+      <FloatingVideo
+        videoUrl={floatingVideoUrl}
+        showOptions={showOptions}
         options={currentChatState?.options?.map(option => ({
           label: option.label,
           onClick: () => handleOptionClick(option.next)
         }))}
         autoOpen={true}
       />
+
+      {isMapExpanded && (
+        <div
+          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
+          onClick={() => setIsMapExpanded(false)}
+          role="dialog"
+          aria-modal="true"
+          aria-label="Visualização ampliada do mapa do IFCE"
+        >
+          <div
+            className="relative max-h-full max-w-5xl w-full"
+            onClick={(event) => event.stopPropagation()}
+          >
+            <button
+              type="button"
+              onClick={() => setIsMapExpanded(false)}
+              className="absolute top-4 right-4 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white text-sm font-medium backdrop-blur focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
+            >
+              Fechar
+            </button>
+            <img
+              src="/lovable-uploads/IFCE.png"
+              alt="Mapa do IFCE ampliado"
+              className="w-full h-full object-contain rounded-lg shadow-2xl"
+            />
+          </div>
+        </div>
+      )}
     </div>
   );
 };
