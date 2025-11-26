@@ -18,8 +18,6 @@ interface ChatState {
   params?: any;
 }
 
-const mapImageSrc = `${import.meta.env.BASE_URL}lovable-uploads/IFCE.jpg`;
-
 // ATENÇÃO:
 // - O avatar flutuante DEVE funcionar em mobile
 // - Deve ser possível mover (arrastar) com o dedo
@@ -94,6 +92,19 @@ const Chat: React.FC = () => {
   const [showOptions, setShowOptions] = useState(false);
   const [floatingVideoUrl, setFloatingVideoUrl] = useState('https://vimeo.com/1129591813');
   const [isMapExpanded, setIsMapExpanded] = useState(false);
+
+  const mapImageSrc = React.useMemo(() => {
+    if (typeof window === 'undefined') {
+      return `${import.meta.env.BASE_URL ?? '/'}lovable-uploads/IFCE.jpg`;
+    }
+
+    try {
+      return new URL('lovable-uploads/IFCE.jpg', `${window.location.origin}${window.location.pathname}`).toString();
+    } catch (error) {
+      console.error('Erro ao resolver caminho do mapa:', error);
+      return `${import.meta.env.BASE_URL ?? '/'}lovable-uploads/IFCE.jpg`;
+    }
+  }, []);
 
   React.useEffect(() => {
     const state = chatFlow[currentState];
