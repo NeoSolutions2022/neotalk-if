@@ -76,7 +76,7 @@ Mais que mapas, criamos conexões. 🌐`,
     type: 'command',
     command: 'setFloatingAvatarVideo',
     params: {
-      url: 'https://vimeo.com/1130092406',
+      url: 'https://vimeo.com/1140648743?share=copy&fl=sv&fe=ci',
       mute: true,
       controls: false,
       float: true,
