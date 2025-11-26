@@ -76,7 +76,7 @@ Mais que mapas, criamos conexões. 🌐`,
     type: 'command',
     command: 'setFloatingAvatarVideo',
     params: {
-      url: 'https://vimeo.com/1130092406',
+      url: 'https://vimeo.com/1140648743?share=copy&fl=sv&fe=ci',
       mute: true,
       controls: false,
       float: true,
@@ -92,6 +92,19 @@ const Chat: React.FC = () => {
   const [showOptions, setShowOptions] = useState(false);
   const [floatingVideoUrl, setFloatingVideoUrl] = useState('https://vimeo.com/1129591813');
   const [isMapExpanded, setIsMapExpanded] = useState(false);
+
+  const mapImageSrc = React.useMemo(() => {
+    if (typeof window === 'undefined') {
+      return `${import.meta.env.BASE_URL ?? '/'}lovable-uploads/IFCE.jpg`;
+    }
+
+    try {
+      return new URL('lovable-uploads/IFCE.jpg', `${window.location.origin}${window.location.pathname}`).toString();
+    } catch (error) {
+      console.error('Erro ao resolver caminho do mapa:', error);
+      return `${import.meta.env.BASE_URL ?? '/'}lovable-uploads/IFCE.jpg`;
+    }
+  }, []);
 
   React.useEffect(() => {
     const state = chatFlow[currentState];
@@ -178,7 +191,7 @@ const Chat: React.FC = () => {
             aria-label="Ampliar mapa do IFCE"
           >
             <img
-              src="/lovable-uploads/IFCE.jpg"
+              src={mapImageSrc}
               alt="Mapa do IFCE"
               className="w-full rounded-lg shadow cursor-zoom-in"
             />
@@ -244,7 +257,7 @@ const Chat: React.FC = () => {
               Fechar
             </button>
             <img
-              src="/lovable-uploads/IFCE.jpg"
+              src={mapImageSrc}
               alt="Mapa do IFCE ampliado"
               className="w-full h-full object-contain rounded-lg shadow-2xl"
             />
