@@ -178,7 +178,7 @@ const Chat: React.FC = () => {
             aria-label="Ampliar mapa do IFCE"
           >
             <img
-              src="/lovable-uploads/IFCE.png"
+              src="/lovable-uploads/IFCE.jpg"
               alt="Mapa do IFCE"
               className="w-full rounded-lg shadow cursor-zoom-in"
             />
@@ -244,7 +244,7 @@ const Chat: React.FC = () => {
               Fechar
             </button>
             <img
-              src="/lovable-uploads/IFCE.png"
+              src="/lovable-uploads/IFCE.jpg"
               alt="Mapa do IFCE ampliado"
               className="w-full h-full object-contain rounded-lg shadow-2xl"
             />
