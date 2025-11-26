@@ -18,6 +18,8 @@ interface ChatState {
   params?: any;
 }
 
+const mapImageSrc = `${import.meta.env.BASE_URL}lovable-uploads/IFCE.jpg`;
+
 // ATENÇÃO:
 // - O avatar flutuante DEVE funcionar em mobile
 // - Deve ser possível mover (arrastar) com o dedo
@@ -178,7 +180,7 @@ const Chat: React.FC = () => {
             aria-label="Ampliar mapa do IFCE"
           >
             <img
-              src="/lovable-uploads/IFCE.jpg"
+              src={mapImageSrc}
               alt="Mapa do IFCE"
               className="w-full rounded-lg shadow cursor-zoom-in"
             />
@@ -244,7 +246,7 @@ const Chat: React.FC = () => {
               Fechar
             </button>
             <img
-              src="/lovable-uploads/IFCE.jpg"
+              src={mapImageSrc}
               alt="Mapa do IFCE ampliado"
               className="w-full h-full object-contain rounded-lg shadow-2xl"
             />
