@@ -26,63 +26,119 @@ interface ChatState {
 
 const chatFlow: Record<string, ChatState> = {
   start: {
-    type: 'message',
-    avatar: 'lia',
-    message: `👋 Bem-vindo(a) ao Mapa Interativo Acessível do IFCE Fortaleza.
-O NeoTalk nasceu para tornar o campus mais acessível por meio da tecnologia.
-Aqui, qualquer pessoa pode se orientar com autonomia, inclusão e inovação, utilizando Libras, texto ou áudio.
-
-Mais que mapas, criamos conexões. 🌐`,
-    next: 'menu_principal'
-  },
-  
-  menu_principal: {
     type: 'options',
-    message: 'Escolha uma das opções abaixo para assistir ao vídeo correspondente:',
+    avatar: 'lia',
+    message: 'Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção abaixo.',
     options: [
-      { label: '🎥 Recepção', next: 'recepcao_video' },
-      { label: '🎥 NAPNE', next: 'napne_video' },
-      { label: '🎥 Biblioteca', next: 'biblioteca_video' }
+      { label: 'Sou novato(a)', next: 'novato_inicio' },
+      { label: 'Plataformas e acessos', next: 'plataformas_inicio' }
     ]
   },
 
-  recepcao_video: {
-    type: 'command',
-    command: 'setFloatingAvatarVideo',
-    params: {
-      url: 'https://vimeo.com/1129591813',
-      mute: true,
-      controls: false,
-      float: true,
-      resizable: true
-    },
-    next: 'menu_principal'
+  novato_inicio: {
+    type: 'options',
+    message: 'Se você está chegando agora, eu posso te ajudar com os primeiros acessos e orientações iniciais.',
+    options: [
+      { label: 'Matrícula de ingressante', next: 'novato_matricula' },
+      { label: 'Acessar sistemas', next: 'novato_sistemas' },
+      { label: 'Ver cursos do campus', next: 'novato_cursos' },
+      { label: 'Ver calendário acadêmico', next: 'novato_calendario' },
+      { label: 'Voltar ao início', next: 'start' }
+    ]
   },
 
-  napne_video: {
-    type: 'command',
-    command: 'setFloatingAvatarVideo',
-    params: {
-      url: 'https://vimeo.com/1130092406',
-      mute: true,
-      controls: false,
-      float: true,
-      resizable: true
-    },
-    next: 'menu_principal'
+  novato_matricula: {
+    type: 'options',
+    message: `Aqui você vai encontrar datas, prazos e orientações gerais sobre matrícula no calendário acadêmico:
+https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/
+
+Se quiser ver informações gerais para estudantes, acesse a página do estudante:
+https://portal.ifce.edu.br/campus/fortaleza/estudante/
+
+Se precisar falar com o setor responsável, a CCA atende em cca.fortal@ifce.edu.br e pelos telefones (85) 3455-3073 | (85) 3307-3660 | (85) 3307-3661.`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
   },
 
-  biblioteca_video: {
-    type: 'command',
-    command: 'setFloatingAvatarVideo',
-    params: {
-      url: 'https://vimeo.com/1140648743?share=copy&fl=sv&fe=ci',
-      mute: true,
-      controls: false,
-      float: true,
-      resizable: true
-    },
-    next: 'menu_principal'
+  novato_sistemas: {
+    type: 'options',
+    message: `Aqui estão os principais acessos para começar:
+Q-Acadêmico para matrícula, notas, histórico e horário:
+https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001
+SUAP para serviços institucionais:
+https://suap.ifce.edu.br/
+Tutorial do e-mail institucional:
+https://portal.ifce.edu.br/documents/19254/FOR_Documento_tutorial_de_como_criar_e_acessar_o_email_institucional_no_SUAP.pdf
+Página de sistemas do IFCE com outros acessos:
+https://portal.ifce.edu.br/sistemas/`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  novato_cursos: {
+    type: 'options',
+    message: `Aqui você vai encontrar a lista oficial de cursos do IFCE Campus Fortaleza:
+https://portal.ifce.edu.br/cursos/buscar/?campus=fortaleza
+
+Se quiser consultar a pós-graduação, acesse:
+https://portal.ifce.edu.br/campus/fortaleza/pesquisa-remover/pos-graduacao/`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  novato_calendario: {
+    type: 'options',
+    message: `Aqui você vai encontrar as datas importantes do semestre no calendário acadêmico oficial:
+https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  plataformas_inicio: {
+    type: 'options',
+    message: 'Essas são as principais plataformas do IFCE para a vida acadêmica. Escolha uma opção.',
+    options: [
+      { label: 'Q-Acadêmico', next: 'plataformas_qacademico' },
+      { label: 'SUAP', next: 'plataformas_suap' },
+      { label: 'E-mail institucional', next: 'plataformas_email' },
+      { label: 'Moodle e sistemas', next: 'plataformas_moodle' },
+      { label: 'SisAE', next: 'plataformas_sisae' },
+      { label: 'Voltar ao início', next: 'start' }
+    ]
+  },
+
+  plataformas_qacademico: {
+    type: 'options',
+    message: `Aqui você vai encontrar o Q-Acadêmico, usado para matrícula, notas, histórico e horário:
+https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  plataformas_suap: {
+    type: 'options',
+    message: `Aqui você vai encontrar o SUAP, usado para serviços institucionais:
+https://suap.ifce.edu.br/`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  plataformas_email: {
+    type: 'options',
+    message: `Aqui você vai encontrar o tutorial oficial para criar e acessar o e-mail institucional:
+https://portal.ifce.edu.br/documents/19254/FOR_Documento_tutorial_de_como_criar_e_acessar_o_email_institucional_no_SUAP.pdf
+Se precisar acessar o sistema base, use o SUAP:
+https://suap.ifce.edu.br/
+Se houver problema técnico, o suporte atende em cti.fortaleza@ifce.edu.br.`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  plataformas_moodle: {
+    type: 'options',
+    message: `Aqui você vai encontrar a página oficial de sistemas do IFCE, com os principais ambientes e acessos acadêmicos:
+https://portal.ifce.edu.br/sistemas/`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  plataformas_sisae: {
+    type: 'options',
+    message: `Aqui você vai encontrar o SisAE, sistema relacionado à assistência estudantil:
+https://sisae.ifce.edu.br/`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
   }
 };
 
