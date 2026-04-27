@@ -7,6 +7,7 @@ interface FloatingVideoProps {
   videoUrls: string[];
   videoCaptions?: string[];
   videoSpeeches?: string[];
+  referenceLinks?: Array<{ id: number; label: string; url: string }>;
   className?: string;
   showOptions?: boolean;
   options?: Array<{ label: string; onClick: () => void }>;
@@ -19,7 +20,7 @@ const extractVimeoId = (url: string) => {
   return url;
 };
 
-const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions, videoSpeeches, className, showOptions, options, autoOpen = false }) => {
+const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions, videoSpeeches, referenceLinks, className, showOptions, options, autoOpen = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [position, setPosition] = useState({ x: window.innerWidth - 300, y: window.innerHeight - 370 });
   const [isDragging, setIsDragging] = useState(false);
@@ -252,6 +253,20 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
               {isSpeaking ? 'Lia falando...' : 'Ouvir Lia'}
             </Button>
           </div>
+          {referenceLinks && referenceLinks.length > 0 && (
+            <div className="max-w-4xl mx-auto mt-3 grid gap-2">
+              {referenceLinks.map((link) => (
+                <Button
+                  key={link.id}
+                  variant="outline"
+                  className="justify-start text-left h-auto whitespace-normal"
+                  onClick={() => window.open(link.url, '_blank', 'noopener,noreferrer')}
+                >
+                  [{link.id}] {link.label} — {link.url}
+                </Button>
+              ))}
+            </div>
+          )}
         </div>
         
         {/* Navigation Options - Sticky Footer */}

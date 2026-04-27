@@ -16,10 +16,46 @@ interface ChatState {
   videoUrls?: string[];
   videoCaptions?: string[];
   videoSpeeches?: string[];
+  referenceLinkIds?: number[];
   next?: string;
   command?: string;
   params?: any;
 }
+
+const referenceLinks: Record<number, { label: string; url: string }> = {
+  1: {
+    label: 'Calendário acadêmico',
+    url: 'https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/'
+  },
+  2: {
+    label: 'Página do estudante',
+    url: 'https://portal.ifce.edu.br/campus/fortaleza/estudante/'
+  },
+  3: {
+    label: 'Q-Acadêmico',
+    url: 'https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001'
+  },
+  4: {
+    label: 'SUAP',
+    url: 'https://suap.ifce.edu.br/'
+  },
+  5: {
+    label: 'Tutorial do e-mail institucional',
+    url: 'https://portal.ifce.edu.br/documents/19254/FOR_Documento_tutorial_de_como_criar_e_acessar_o_email_institucional_no_SUAP.pdf'
+  },
+  6: {
+    label: 'Sistemas do IFCE',
+    url: 'https://portal.ifce.edu.br/sistemas/'
+  },
+  7: {
+    label: 'Cursos do campus',
+    url: 'https://portal.ifce.edu.br/cursos/buscar/?campus=fortaleza'
+  },
+  8: {
+    label: 'Pós-graduação',
+    url: 'https://portal.ifce.edu.br/campus/fortaleza/pesquisa-remover/pos-graduacao/'
+  }
+};
 
 // ATENÇÃO:
 // - O avatar flutuante DEVE funcionar em mobile
@@ -34,6 +70,7 @@ const chatFlow: Record<string, ChatState> = {
     videoUrls: ['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci'],
     videoCaptions: ['Olá! Eu sou a Lia.'],
     videoSpeeches: ['Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção para começar.'],
+    referenceLinkIds: [],
     message: 'Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção abaixo.',
     options: [
       { label: 'Sou novato(a)', next: 'novato_inicio' },
@@ -58,6 +95,7 @@ const chatFlow: Record<string, ChatState> = {
     videoUrls: ['https://vimeo.com/1186307442?share=copy&fl=sv&fe=ci'],
     videoCaptions: ['Matrícula de ingressante'],
     videoSpeeches: ['Para ver datas, prazos e orientações gerais sobre matrícula, consulte o calendário acadêmico no link 1. Se quiser ver informações gerais para estudantes, consulte a página do estudante no link 2.'],
+    referenceLinkIds: [1, 2],
     message: `Aqui você vai encontrar datas, prazos e orientações gerais sobre matrícula no calendário acadêmico:
 https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/
 
@@ -79,6 +117,7 @@ Se precisar falar com o setor responsável, a CCA atende em cca.fortal@ifce.edu.
       'Para acessar os sistemas principais, consulte o Q-Acadêmico no link 3 e o SUAP no link 4.',
       'Para criar ou acessar o e-mail institucional, consulte o tutorial no link 5. Para outros acessos acadêmicos, consulte a página de sistemas do IFCE no link 6.'
     ],
+    referenceLinkIds: [3, 4, 5, 6],
     message: `Aqui estão os principais acessos para começar:
 Q-Acadêmico para matrícula, notas, histórico e horário:
 https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001
@@ -96,6 +135,7 @@ https://portal.ifce.edu.br/sistemas/`,
     videoUrls: ['https://vimeo.com/1186307468?share=copy&fl=sv&fe=ci'],
     videoCaptions: ['Cursos do campus'],
     videoSpeeches: ['Para ver a lista oficial de cursos do campus, consulte o link 7. Se quiser consultar a pós-graduação, vá para o link 8.'],
+    referenceLinkIds: [7, 8],
     message: `Aqui você vai encontrar a lista oficial de cursos do IFCE Campus Fortaleza:
 https://portal.ifce.edu.br/cursos/buscar/?campus=fortaleza
 
@@ -109,6 +149,7 @@ https://portal.ifce.edu.br/campus/fortaleza/pesquisa-remover/pos-graduacao/`,
     videoUrls: ['https://vimeo.com/1186307512?share=copy&fl=sv&fe=ci'],
     videoCaptions: ['Calendário acadêmico'],
     videoSpeeches: ['Para ver as datas importantes do semestre, consulte o calendário acadêmico no link 1.'],
+    referenceLinkIds: [1],
     message: `Aqui você vai encontrar as datas importantes do semestre no calendário acadêmico oficial:
 https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/`,
     options: [{ label: 'Voltar ao início', next: 'start' }]
@@ -132,6 +173,7 @@ https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/`,
     videoUrls: ['https://vimeo.com/1186307604?share=copy&fl=sv&fe=ci'],
     videoCaptions: ['Q-Acadêmico'],
     videoSpeeches: ['Para matrícula, notas, histórico e horário, acesse o Q-Acadêmico no link 3.'],
+    referenceLinkIds: [3],
     message: `Aqui você vai encontrar o Q-Acadêmico, usado para matrícula, notas, histórico e horário:
 https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001`,
     options: [{ label: 'Voltar ao início', next: 'start' }]
@@ -142,6 +184,7 @@ https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001`,
     videoUrls: ['https://vimeo.com/1186307392?share=copy&fl=sv&fe=ci'],
     videoCaptions: ['SUAP'],
     videoSpeeches: ['Para serviços institucionais, acesse o SUAP no link 4.'],
+    referenceLinkIds: [4],
     message: `Aqui você vai encontrar o SUAP, usado para serviços institucionais:
 https://suap.ifce.edu.br/`,
     options: [{ label: 'Voltar ao início', next: 'start' }]
@@ -158,6 +201,7 @@ https://suap.ifce.edu.br/`,
       'Para criar e acessar o e-mail institucional, consulte o tutorial oficial no link 5.',
       'Se precisar acessar o sistema base, use o SUAP no link 4. Se houver problema técnico, procure o suporte.'
     ],
+    referenceLinkIds: [5, 4],
     message: `Aqui você vai encontrar o tutorial oficial para criar e acessar o e-mail institucional:
 https://portal.ifce.edu.br/documents/19254/FOR_Documento_tutorial_de_como_criar_e_acessar_o_email_institucional_no_SUAP.pdf
 Se precisar acessar o sistema base, use o SUAP:
@@ -171,6 +215,7 @@ Se houver problema técnico, o suporte atende em cti.fortaleza@ifce.edu.br.`,
     videoUrls: ['https://vimeo.com/1186307722?share=copy&fl=sv&fe=ci'],
     videoCaptions: ['Moodle e sistemas'],
     videoSpeeches: ['Para encontrar os principais ambientes e acessos acadêmicos, consulte a página de sistemas do IFCE no link 6.'],
+    referenceLinkIds: [6],
     message: `Aqui você vai encontrar a página oficial de sistemas do IFCE, com os principais ambientes e acessos acadêmicos:
 https://portal.ifce.edu.br/sistemas/`,
     options: [{ label: 'Voltar ao início', next: 'start' }]
@@ -192,6 +237,7 @@ const Chat: React.FC = () => {
   const [floatingVideoUrls, setFloatingVideoUrls] = useState<string[]>(['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci']);
   const [floatingVideoCaptions, setFloatingVideoCaptions] = useState<string[]>(['Olá! Eu sou a Lia.']);
   const [floatingVideoSpeeches, setFloatingVideoSpeeches] = useState<string[]>(['Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção para começar.']);
+  const [floatingReferenceLinks, setFloatingReferenceLinks] = useState<Array<{ id: number; label: string; url: string }>>([]);
 
   React.useEffect(() => {
     const state = chatFlow[currentState];
@@ -201,6 +247,15 @@ const Chat: React.FC = () => {
       }
       setFloatingVideoCaptions(state.videoCaptions && state.videoCaptions.length > 0 ? state.videoCaptions : ['Olá! Eu sou a Lia.']);
       setFloatingVideoSpeeches(state.videoSpeeches && state.videoSpeeches.length > 0 ? state.videoSpeeches : ['Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção para começar.']);
+      setFloatingReferenceLinks(
+        (state.referenceLinkIds ?? [])
+          .map((linkId) => {
+            const link = referenceLinks[linkId];
+            if (!link) return null;
+            return { id: linkId, ...link };
+          })
+          .filter((link): link is { id: number; label: string; url: string } => link !== null)
+      );
 
       // Only add to messages if it's not a command type
       if (state.type !== 'command' && state.message) {
@@ -296,6 +351,7 @@ const Chat: React.FC = () => {
         videoUrls={floatingVideoUrls}
         videoCaptions={floatingVideoCaptions}
         videoSpeeches={floatingVideoSpeeches}
+        referenceLinks={floatingReferenceLinks}
         showOptions={showOptions}
         options={currentChatState?.options?.map(option => ({
           label: option.label,
