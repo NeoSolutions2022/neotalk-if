@@ -31,25 +31,43 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
   const currentVideoId = extractVimeoId(normalizedVideoUrls[activeVideoIndex] ?? normalizedVideoUrls[0]);
   const currentCaption = normalizedCaptions[activeVideoIndex] ?? normalizedCaptions[0];
   const currentSpeech = normalizedSpeeches[activeVideoIndex] ?? normalizedSpeeches[0];
+  const [isSpeaking, setIsSpeaking] = useState(false);
 
   React.useEffect(() => {
     setActiveVideoIndex(0);
   }, [videoUrls]);
 
-  React.useEffect(() => {
-    if (typeof window === 'undefined' || !('speechSynthesis' in window) || !isExpanded || !currentSpeech) return;
+  const speakCurrentText = useCallback(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window) || !currentSpeech) return;
 
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentSpeech);
+    const voices = window.speechSynthesis.getVoices();
+    const ptBrVoice = voices.find((voice) => voice.lang.toLowerCase().startsWith('pt-br'));
+    if (ptBrVoice) {
+      utterance.voice = ptBrVoice;
+    }
+
     utterance.lang = 'pt-BR';
     utterance.rate = 1;
     utterance.pitch = 1;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
     window.speechSynthesis.speak(utterance);
+  }, [currentSpeech]);
+
+  React.useEffect(() => {
+    if (!isExpanded || !currentSpeech) return;
+    speakCurrentText();
 
     return () => {
-      window.speechSynthesis.cancel();
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      setIsSpeaking(false);
     };
-  }, [currentSpeech, isExpanded]);
+  }, [currentSpeech, isExpanded, speakCurrentText]);
 
   const handleDragStart = useCallback((clientX: number, clientY: number) => {
     setIsDragging(true);
@@ -163,27 +181,26 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
         aria-label="Avatar 3D em tela cheia"
       >
         <div className="flex-1 flex items-center justify-center p-4">
-          <div className="w-full max-w-4xl space-y-3">
+          <div className="w-full max-w-4xl">
             <div className="relative w-full h-[60vh] bg-floating-bg rounded-lg overflow-hidden">
-            <iframe
-              src={`https://player.vimeo.com/video/${currentVideoId}?h=0&badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&loop=1&muted=1&controls=0&transparent=0&portrait=0&title=0&byline=0`}
-              className="w-full h-full"
-              frameBorder="0"
-              allow="autoplay; fullscreen; picture-in-picture"
-              title="Avatar 3D da Lia"
-              style={{ clipPath: 'inset(0 0 30% 0)' }}
-            />
-            </div>
-            <div className="rounded-lg border border-border bg-background/95 p-4 min-h-16 flex items-center">
-              <p className="text-sm md:text-base text-foreground font-medium">{currentCaption}</p>
+              <iframe
+                src={`https://player.vimeo.com/video/${currentVideoId}?h=0&badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&loop=1&muted=1&controls=0&transparent=0&portrait=0&title=0&byline=0`}
+                className="w-full h-full"
+                frameBorder="0"
+                allow="autoplay; fullscreen; picture-in-picture"
+                title="Avatar 3D da Lia"
+                style={{ clipPath: 'inset(0 0 30% 0)' }}
+              />
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent">
+                <p className="text-sm md:text-base text-white font-medium text-center">{currentCaption}</p>
+              </div>
             </div>
           </div>
         </div>
 
-        {normalizedVideoUrls.length > 1 && (
-          <div className="px-4 pb-4">
-            <div className="max-w-4xl mx-auto flex gap-2">
-              {normalizedVideoUrls.map((_, index) => (
+        <div className="px-4 pb-4">
+          <div className="max-w-4xl mx-auto flex gap-2 flex-wrap">
+            {normalizedVideoUrls.length > 1 && normalizedVideoUrls.map((_, index) => (
                 <Button
                   key={index}
                   variant={activeVideoIndex === index ? 'default' : 'outline'}
@@ -193,9 +210,15 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
                   Vídeo {index + 1}
                 </Button>
               ))}
-            </div>
+            <Button
+              variant={isSpeaking ? 'default' : 'outline'}
+              onClick={speakCurrentText}
+              className="min-w-36"
+            >
+              {isSpeaking ? 'Lia falando...' : 'Ouvir Lia'}
+            </Button>
           </div>
-        )}
+        </div>
         
         {/* Navigation Options - Sticky Footer */}
         {showOptions && options && options.length > 0 && (
