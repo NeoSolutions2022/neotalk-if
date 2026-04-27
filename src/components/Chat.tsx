@@ -13,6 +13,7 @@ interface ChatState {
   avatar?: string;
   message?: string;
   options?: ChatOption[];
+  videoUrls?: string[];
   next?: string;
   command?: string;
   params?: any;
@@ -28,6 +29,7 @@ const chatFlow: Record<string, ChatState> = {
   start: {
     type: 'options',
     avatar: 'lia',
+    videoUrls: ['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci'],
     message: 'Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção abaixo.',
     options: [
       { label: 'Sou novato(a)', next: 'novato_inicio' },
@@ -49,6 +51,7 @@ const chatFlow: Record<string, ChatState> = {
 
   novato_matricula: {
     type: 'options',
+    videoUrls: ['https://vimeo.com/1186307442?share=copy&fl=sv&fe=ci'],
     message: `Aqui você vai encontrar datas, prazos e orientações gerais sobre matrícula no calendário acadêmico:
 https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/
 
@@ -61,6 +64,10 @@ Se precisar falar com o setor responsável, a CCA atende em cca.fortal@ifce.edu.
 
   novato_sistemas: {
     type: 'options',
+    videoUrls: [
+      'https://vimeo.com/1186307550?share=copy&fl=sv&fe=ci',
+      'https://vimeo.com/1186307577?share=copy&fl=sv&fe=ci'
+    ],
     message: `Aqui estão os principais acessos para começar:
 Q-Acadêmico para matrícula, notas, histórico e horário:
 https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001
@@ -75,6 +82,7 @@ https://portal.ifce.edu.br/sistemas/`,
 
   novato_cursos: {
     type: 'options',
+    videoUrls: ['https://vimeo.com/1186307468?share=copy&fl=sv&fe=ci'],
     message: `Aqui você vai encontrar a lista oficial de cursos do IFCE Campus Fortaleza:
 https://portal.ifce.edu.br/cursos/buscar/?campus=fortaleza
 
@@ -85,6 +93,7 @@ https://portal.ifce.edu.br/campus/fortaleza/pesquisa-remover/pos-graduacao/`,
 
   novato_calendario: {
     type: 'options',
+    videoUrls: ['https://vimeo.com/1186307512?share=copy&fl=sv&fe=ci'],
     message: `Aqui você vai encontrar as datas importantes do semestre no calendário acadêmico oficial:
 https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/`,
     options: [{ label: 'Voltar ao início', next: 'start' }]
@@ -105,6 +114,7 @@ https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/`,
 
   plataformas_qacademico: {
     type: 'options',
+    videoUrls: ['https://vimeo.com/1186307604?share=copy&fl=sv&fe=ci'],
     message: `Aqui você vai encontrar o Q-Acadêmico, usado para matrícula, notas, histórico e horário:
 https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001`,
     options: [{ label: 'Voltar ao início', next: 'start' }]
@@ -112,6 +122,7 @@ https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001`,
 
   plataformas_suap: {
     type: 'options',
+    videoUrls: ['https://vimeo.com/1186307392?share=copy&fl=sv&fe=ci'],
     message: `Aqui você vai encontrar o SUAP, usado para serviços institucionais:
 https://suap.ifce.edu.br/`,
     options: [{ label: 'Voltar ao início', next: 'start' }]
@@ -119,6 +130,10 @@ https://suap.ifce.edu.br/`,
 
   plataformas_email: {
     type: 'options',
+    videoUrls: [
+      'https://vimeo.com/1186307333?share=copy&fl=sv&fe=ci',
+      'https://vimeo.com/1186307364?share=copy&fl=sv&fe=ci'
+    ],
     message: `Aqui você vai encontrar o tutorial oficial para criar e acessar o e-mail institucional:
 https://portal.ifce.edu.br/documents/19254/FOR_Documento_tutorial_de_como_criar_e_acessar_o_email_institucional_no_SUAP.pdf
 Se precisar acessar o sistema base, use o SUAP:
@@ -129,6 +144,7 @@ Se houver problema técnico, o suporte atende em cti.fortaleza@ifce.edu.br.`,
 
   plataformas_moodle: {
     type: 'options',
+    videoUrls: ['https://vimeo.com/1186307282?share=copy&fl=sv&fe=ci'],
     message: `Aqui você vai encontrar a página oficial de sistemas do IFCE, com os principais ambientes e acessos acadêmicos:
 https://portal.ifce.edu.br/sistemas/`,
     options: [{ label: 'Voltar ao início', next: 'start' }]
@@ -136,6 +152,7 @@ https://portal.ifce.edu.br/sistemas/`,
 
   plataformas_sisae: {
     type: 'options',
+    videoUrls: ['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci'],
     message: `Aqui você vai encontrar o SisAE, sistema relacionado à assistência estudantil:
 https://sisae.ifce.edu.br/`,
     options: [{ label: 'Voltar ao início', next: 'start' }]
@@ -146,7 +163,7 @@ const Chat: React.FC = () => {
   const [currentState, setCurrentState] = useState('start');
   const [messages, setMessages] = useState<Array<{ id: string; message: string; isBot: boolean }>>([]);
   const [showOptions, setShowOptions] = useState(false);
-  const [floatingVideoUrl, setFloatingVideoUrl] = useState('https://vimeo.com/1129591813');
+  const [floatingVideoUrls, setFloatingVideoUrls] = useState<string[]>(['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci']);
   const [isMapExpanded, setIsMapExpanded] = useState(false);
 
   const mapImageSrc = React.useMemo(() => {
@@ -165,6 +182,10 @@ const Chat: React.FC = () => {
   React.useEffect(() => {
     const state = chatFlow[currentState];
     if (state) {
+      if (state.videoUrls && state.videoUrls.length > 0) {
+        setFloatingVideoUrls(state.videoUrls);
+      }
+
       // Only add to messages if it's not a command type
       if (state.type !== 'command' && state.message) {
         const messageId = `${currentState}-${Date.now()}`;
@@ -179,7 +200,7 @@ const Chat: React.FC = () => {
         setShowOptions(true);
       } else if (state.type === 'command') {
         if (state.command === 'setFloatingAvatarVideo' && state.params?.url) {
-          setFloatingVideoUrl(state.params.url);
+          setFloatingVideoUrls([state.params.url]);
         }
         setShowOptions(false);
         if (state.next) {
@@ -284,7 +305,7 @@ const Chat: React.FC = () => {
 
       {/* Floating Video */}
       <FloatingVideo
-        videoUrl={floatingVideoUrl}
+        videoUrls={floatingVideoUrls}
         showOptions={showOptions}
         options={currentChatState?.options?.map(option => ({
           label: option.label,

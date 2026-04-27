@@ -4,18 +4,31 @@ import { X, Maximize2, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FloatingVideoProps {
-  videoUrl: string;
+  videoUrls: string[];
   className?: string;
   showOptions?: boolean;
   options?: Array<{ label: string; onClick: () => void }>;
   autoOpen?: boolean;
 }
 
-const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrl, className, showOptions, options, autoOpen = false }) => {
+const extractVimeoId = (url: string) => {
+  const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
+  if (match?.[1]) return match[1];
+  return url;
+};
+
+const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, className, showOptions, options, autoOpen = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [position, setPosition] = useState({ x: window.innerWidth - 300, y: window.innerHeight - 370 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, startX: 0, startY: 0 });
+  const [activeVideoIndex, setActiveVideoIndex] = useState(0);
+  const normalizedVideoUrls = videoUrls.length > 0 ? videoUrls : ['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci'];
+  const currentVideoId = extractVimeoId(normalizedVideoUrls[activeVideoIndex] ?? normalizedVideoUrls[0]);
+
+  React.useEffect(() => {
+    setActiveVideoIndex(0);
+  }, [videoUrls]);
 
   const handleDragStart = useCallback((clientX: number, clientY: number) => {
     setIsDragging(true);
@@ -131,7 +144,7 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrl, className, show
         <div className="flex-1 flex items-center justify-center p-4">
           <div className="relative w-full max-w-4xl h-full max-h-[70vh] bg-floating-bg rounded-lg overflow-hidden">
             <iframe
-              src={`https://player.vimeo.com/video/${videoUrl.split('/').pop()}?h=0&badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&loop=1&muted=1&controls=0&transparent=0&portrait=0&title=0&byline=0`}
+              src={`https://player.vimeo.com/video/${currentVideoId}?h=0&badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&loop=1&muted=1&controls=0&transparent=0&portrait=0&title=0&byline=0`}
               className="w-full h-full"
               frameBorder="0"
               allow="autoplay; fullscreen; picture-in-picture"
@@ -140,6 +153,23 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrl, className, show
             />
           </div>
         </div>
+
+        {normalizedVideoUrls.length > 1 && (
+          <div className="px-4 pb-4">
+            <div className="max-w-4xl mx-auto flex gap-2">
+              {normalizedVideoUrls.map((_, index) => (
+                <Button
+                  key={index}
+                  variant={activeVideoIndex === index ? 'default' : 'outline'}
+                  onClick={() => setActiveVideoIndex(index)}
+                  className="flex-1"
+                >
+                  Vídeo {index + 1}
+                </Button>
+              ))}
+            </div>
+          </div>
+        )}
         
         {/* Navigation Options - Sticky Footer */}
         {showOptions && options && options.length > 0 && (
@@ -244,7 +274,7 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrl, className, show
         
         {/* Video iframe */}
         <iframe
-          src={`https://player.vimeo.com/video/${videoUrl.split('/').pop()}?h=0&badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&loop=1&muted=1&controls=0&transparent=0&portrait=0&title=0&byline=0`}
+          src={`https://player.vimeo.com/video/${currentVideoId}?h=0&badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&loop=1&muted=1&controls=0&transparent=0&portrait=0&title=0&byline=0`}
           className="w-full h-full rounded-lg"
           frameBorder="0"
           allow="autoplay; fullscreen; picture-in-picture"
