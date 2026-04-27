@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Maximize2, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -26,12 +26,41 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, startX: 0, startY: 0 });
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const normalizedVideoUrls = videoUrls.length > 0 ? videoUrls : ['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci'];
-  const normalizedCaptions = videoCaptions && videoCaptions.length > 0 ? videoCaptions : ['Olá! Eu sou a Lia.'];
   const normalizedSpeeches = videoSpeeches && videoSpeeches.length > 0 ? videoSpeeches : ['Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção para começar.'];
   const currentVideoId = extractVimeoId(normalizedVideoUrls[activeVideoIndex] ?? normalizedVideoUrls[0]);
-  const currentCaption = normalizedCaptions[activeVideoIndex] ?? normalizedCaptions[0];
   const currentSpeech = normalizedSpeeches[activeVideoIndex] ?? normalizedSpeeches[0];
   const [isSpeaking, setIsSpeaking] = useState(false);
+  const [dynamicSubtitle, setDynamicSubtitle] = useState('');
+  const subtitleTimerRef = useRef<number | null>(null);
+
+  const startDynamicSubtitle = useCallback((text: string) => {
+    if (subtitleTimerRef.current) {
+      window.clearInterval(subtitleTimerRef.current);
+      subtitleTimerRef.current = null;
+    }
+
+    const words = text.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) {
+      setDynamicSubtitle('');
+      return;
+    }
+
+    let index = 0;
+    setDynamicSubtitle(words[0]);
+    subtitleTimerRef.current = window.setInterval(() => {
+      index += 1;
+      if (index >= words.length) {
+        if (subtitleTimerRef.current) {
+          window.clearInterval(subtitleTimerRef.current);
+          subtitleTimerRef.current = null;
+        }
+        setDynamicSubtitle(text);
+        return;
+      }
+
+      setDynamicSubtitle(words.slice(0, index + 1).join(' '));
+    }, 220);
+  }, []);
 
   React.useEffect(() => {
     setActiveVideoIndex(0);
@@ -40,6 +69,7 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
   const speakCurrentText = useCallback(() => {
     if (typeof window === 'undefined' || !('speechSynthesis' in window) || !currentSpeech) return;
 
+    startDynamicSubtitle(currentSpeech);
     window.speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(currentSpeech);
     const voices = window.speechSynthesis.getVoices();
@@ -55,13 +85,17 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
     utterance.onend = () => setIsSpeaking(false);
     utterance.onerror = () => setIsSpeaking(false);
     window.speechSynthesis.speak(utterance);
-  }, [currentSpeech]);
+  }, [currentSpeech, startDynamicSubtitle]);
 
   React.useEffect(() => {
     if (!isExpanded || !currentSpeech) return;
     speakCurrentText();
 
     return () => {
+      if (subtitleTimerRef.current) {
+        window.clearInterval(subtitleTimerRef.current);
+        subtitleTimerRef.current = null;
+      }
       if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
         window.speechSynthesis.cancel();
       }
@@ -191,8 +225,8 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
                 title="Avatar 3D da Lia"
                 style={{ clipPath: 'inset(0 0 30% 0)' }}
               />
-              <div className="pointer-events-none absolute bottom-0 left-0 right-0 p-4 bg-gradient-to-t from-black/80 via-black/50 to-transparent">
-                <p className="text-sm md:text-base text-white font-medium text-center">{currentCaption}</p>
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 p-3 bg-white border-t border-gray-200">
+                <p className="text-sm md:text-base text-black font-medium text-center">{dynamicSubtitle || currentSpeech}</p>
               </div>
             </div>
           </div>
