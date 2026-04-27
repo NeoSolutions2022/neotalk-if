@@ -5,6 +5,8 @@ import { cn } from '@/lib/utils';
 
 interface FloatingVideoProps {
   videoUrls: string[];
+  videoCaptions?: string[];
+  videoSpeeches?: string[];
   className?: string;
   showOptions?: boolean;
   options?: Array<{ label: string; onClick: () => void }>;
@@ -17,18 +19,37 @@ const extractVimeoId = (url: string) => {
   return url;
 };
 
-const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, className, showOptions, options, autoOpen = false }) => {
+const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions, videoSpeeches, className, showOptions, options, autoOpen = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [position, setPosition] = useState({ x: window.innerWidth - 300, y: window.innerHeight - 370 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, startX: 0, startY: 0 });
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const normalizedVideoUrls = videoUrls.length > 0 ? videoUrls : ['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci'];
+  const normalizedCaptions = videoCaptions && videoCaptions.length > 0 ? videoCaptions : ['Olá! Eu sou a Lia.'];
+  const normalizedSpeeches = videoSpeeches && videoSpeeches.length > 0 ? videoSpeeches : ['Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção para começar.'];
   const currentVideoId = extractVimeoId(normalizedVideoUrls[activeVideoIndex] ?? normalizedVideoUrls[0]);
+  const currentCaption = normalizedCaptions[activeVideoIndex] ?? normalizedCaptions[0];
+  const currentSpeech = normalizedSpeeches[activeVideoIndex] ?? normalizedSpeeches[0];
 
   React.useEffect(() => {
     setActiveVideoIndex(0);
   }, [videoUrls]);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window) || !isExpanded || !currentSpeech) return;
+
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(currentSpeech);
+    utterance.lang = 'pt-BR';
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    window.speechSynthesis.speak(utterance);
+
+    return () => {
+      window.speechSynthesis.cancel();
+    };
+  }, [currentSpeech, isExpanded]);
 
   const handleDragStart = useCallback((clientX: number, clientY: number) => {
     setIsDragging(true);
@@ -142,7 +163,8 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, className, sho
         aria-label="Avatar 3D em tela cheia"
       >
         <div className="flex-1 flex items-center justify-center p-4">
-          <div className="relative w-full max-w-4xl h-full max-h-[70vh] bg-floating-bg rounded-lg overflow-hidden">
+          <div className="w-full max-w-4xl space-y-3">
+            <div className="relative w-full h-[60vh] bg-floating-bg rounded-lg overflow-hidden">
             <iframe
               src={`https://player.vimeo.com/video/${currentVideoId}?h=0&badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&loop=1&muted=1&controls=0&transparent=0&portrait=0&title=0&byline=0`}
               className="w-full h-full"
@@ -151,6 +173,10 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, className, sho
               title="Avatar 3D da Lia"
               style={{ clipPath: 'inset(0 0 30% 0)' }}
             />
+            </div>
+            <div className="rounded-lg border border-border bg-background/95 p-4 min-h-16 flex items-center">
+              <p className="text-sm md:text-base text-foreground font-medium">{currentCaption}</p>
+            </div>
           </div>
         </div>
 

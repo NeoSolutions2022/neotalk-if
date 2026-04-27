@@ -14,6 +14,8 @@ interface ChatState {
   message?: string;
   options?: ChatOption[];
   videoUrls?: string[];
+  videoCaptions?: string[];
+  videoSpeeches?: string[];
   next?: string;
   command?: string;
   params?: any;
@@ -30,6 +32,8 @@ const chatFlow: Record<string, ChatState> = {
     type: 'options',
     avatar: 'lia',
     videoUrls: ['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['Olá! Eu sou a Lia.'],
+    videoSpeeches: ['Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção para começar.'],
     message: 'Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção abaixo.',
     options: [
       { label: 'Sou novato(a)', next: 'novato_inicio' },
@@ -52,6 +56,8 @@ const chatFlow: Record<string, ChatState> = {
   novato_matricula: {
     type: 'options',
     videoUrls: ['https://vimeo.com/1186307442?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['Matrícula de ingressante'],
+    videoSpeeches: ['Para ver datas, prazos e orientações gerais sobre matrícula, consulte o calendário acadêmico no link 1. Se quiser ver informações gerais para estudantes, consulte a página do estudante no link 2.'],
     message: `Aqui você vai encontrar datas, prazos e orientações gerais sobre matrícula no calendário acadêmico:
 https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/
 
@@ -68,6 +74,11 @@ Se precisar falar com o setor responsável, a CCA atende em cca.fortal@ifce.edu.
       'https://vimeo.com/1186307550?share=copy&fl=sv&fe=ci',
       'https://vimeo.com/1186307577?share=copy&fl=sv&fe=ci'
     ],
+    videoCaptions: ['Q-Acadêmico e SUAP', 'E-mail e sistemas do IFCE'],
+    videoSpeeches: [
+      'Para acessar os sistemas principais, consulte o Q-Acadêmico no link 3 e o SUAP no link 4.',
+      'Para criar ou acessar o e-mail institucional, consulte o tutorial no link 5. Para outros acessos acadêmicos, consulte a página de sistemas do IFCE no link 6.'
+    ],
     message: `Aqui estão os principais acessos para começar:
 Q-Acadêmico para matrícula, notas, histórico e horário:
 https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001
@@ -83,6 +94,8 @@ https://portal.ifce.edu.br/sistemas/`,
   novato_cursos: {
     type: 'options',
     videoUrls: ['https://vimeo.com/1186307468?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['Cursos do campus'],
+    videoSpeeches: ['Para ver a lista oficial de cursos do campus, consulte o link 7. Se quiser consultar a pós-graduação, vá para o link 8.'],
     message: `Aqui você vai encontrar a lista oficial de cursos do IFCE Campus Fortaleza:
 https://portal.ifce.edu.br/cursos/buscar/?campus=fortaleza
 
@@ -94,6 +107,8 @@ https://portal.ifce.edu.br/campus/fortaleza/pesquisa-remover/pos-graduacao/`,
   novato_calendario: {
     type: 'options',
     videoUrls: ['https://vimeo.com/1186307512?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['Calendário acadêmico'],
+    videoSpeeches: ['Para ver as datas importantes do semestre, consulte o calendário acadêmico no link 1.'],
     message: `Aqui você vai encontrar as datas importantes do semestre no calendário acadêmico oficial:
 https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/`,
     options: [{ label: 'Voltar ao início', next: 'start' }]
@@ -115,6 +130,8 @@ https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/`,
   plataformas_qacademico: {
     type: 'options',
     videoUrls: ['https://vimeo.com/1186307604?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['Q-Acadêmico'],
+    videoSpeeches: ['Para matrícula, notas, histórico e horário, acesse o Q-Acadêmico no link 3.'],
     message: `Aqui você vai encontrar o Q-Acadêmico, usado para matrícula, notas, histórico e horário:
 https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001`,
     options: [{ label: 'Voltar ao início', next: 'start' }]
@@ -123,6 +140,8 @@ https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001`,
   plataformas_suap: {
     type: 'options',
     videoUrls: ['https://vimeo.com/1186307392?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['SUAP'],
+    videoSpeeches: ['Para serviços institucionais, acesse o SUAP no link 4.'],
     message: `Aqui você vai encontrar o SUAP, usado para serviços institucionais:
 https://suap.ifce.edu.br/`,
     options: [{ label: 'Voltar ao início', next: 'start' }]
@@ -134,6 +153,11 @@ https://suap.ifce.edu.br/`,
       'https://vimeo.com/1186307333?share=copy&fl=sv&fe=ci',
       'https://vimeo.com/1186307364?share=copy&fl=sv&fe=ci'
     ],
+    videoCaptions: ['E-mail institucional', 'Acesso e suporte'],
+    videoSpeeches: [
+      'Para criar e acessar o e-mail institucional, consulte o tutorial oficial no link 5.',
+      'Se precisar acessar o sistema base, use o SUAP no link 4. Se houver problema técnico, procure o suporte.'
+    ],
     message: `Aqui você vai encontrar o tutorial oficial para criar e acessar o e-mail institucional:
 https://portal.ifce.edu.br/documents/19254/FOR_Documento_tutorial_de_como_criar_e_acessar_o_email_institucional_no_SUAP.pdf
 Se precisar acessar o sistema base, use o SUAP:
@@ -144,7 +168,9 @@ Se houver problema técnico, o suporte atende em cti.fortaleza@ifce.edu.br.`,
 
   plataformas_moodle: {
     type: 'options',
-    videoUrls: ['https://vimeo.com/1186307282?share=copy&fl=sv&fe=ci'],
+    videoUrls: ['https://vimeo.com/1186307722?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['Moodle e sistemas'],
+    videoSpeeches: ['Para encontrar os principais ambientes e acessos acadêmicos, consulte a página de sistemas do IFCE no link 6.'],
     message: `Aqui você vai encontrar a página oficial de sistemas do IFCE, com os principais ambientes e acessos acadêmicos:
 https://portal.ifce.edu.br/sistemas/`,
     options: [{ label: 'Voltar ao início', next: 'start' }]
@@ -164,20 +190,8 @@ const Chat: React.FC = () => {
   const [messages, setMessages] = useState<Array<{ id: string; message: string; isBot: boolean }>>([]);
   const [showOptions, setShowOptions] = useState(false);
   const [floatingVideoUrls, setFloatingVideoUrls] = useState<string[]>(['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci']);
-  const [isMapExpanded, setIsMapExpanded] = useState(false);
-
-  const mapImageSrc = React.useMemo(() => {
-    if (typeof window === 'undefined') {
-      return `${import.meta.env.BASE_URL ?? '/'}lovable-uploads/IFCE.jpg`;
-    }
-
-    try {
-      return new URL('lovable-uploads/IFCE.jpg', `${window.location.origin}${window.location.pathname}`).toString();
-    } catch (error) {
-      console.error('Erro ao resolver caminho do mapa:', error);
-      return `${import.meta.env.BASE_URL ?? '/'}lovable-uploads/IFCE.jpg`;
-    }
-  }, []);
+  const [floatingVideoCaptions, setFloatingVideoCaptions] = useState<string[]>(['Olá! Eu sou a Lia.']);
+  const [floatingVideoSpeeches, setFloatingVideoSpeeches] = useState<string[]>(['Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção para começar.']);
 
   React.useEffect(() => {
     const state = chatFlow[currentState];
@@ -185,6 +199,8 @@ const Chat: React.FC = () => {
       if (state.videoUrls && state.videoUrls.length > 0) {
         setFloatingVideoUrls(state.videoUrls);
       }
+      setFloatingVideoCaptions(state.videoCaptions && state.videoCaptions.length > 0 ? state.videoCaptions : ['Olá! Eu sou a Lia.']);
+      setFloatingVideoSpeeches(state.videoSpeeches && state.videoSpeeches.length > 0 ? state.videoSpeeches : ['Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção para começar.']);
 
       // Only add to messages if it's not a command type
       if (state.type !== 'command' && state.message) {
@@ -231,19 +247,6 @@ const Chat: React.FC = () => {
     setCurrentState(nextState);
   };
 
-  React.useEffect(() => {
-    if (!isMapExpanded) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsMapExpanded(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isMapExpanded]);
-
   const currentChatState = chatFlow[currentState];
 
   return (
@@ -258,23 +261,8 @@ const Chat: React.FC = () => {
         <h1 className="text-xl font-bold text-foreground">Área de Conversação</h1>
       </div>
 
-      {/* Messages and Maps */}
+      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <div className="w-full">
-          <button
-            type="button"
-            onClick={() => setIsMapExpanded(true)}
-            className="w-full max-w-md mx-auto block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            aria-label="Ampliar mapa do IFCE"
-          >
-            <img
-              src={mapImageSrc}
-              alt="Mapa do IFCE"
-              className="w-full rounded-lg shadow cursor-zoom-in"
-            />
-          </button>
-        </div>
-
         {messages.map((msg) => (
           <ChatBubble
             key={msg.id}
@@ -306,6 +294,8 @@ const Chat: React.FC = () => {
       {/* Floating Video */}
       <FloatingVideo
         videoUrls={floatingVideoUrls}
+        videoCaptions={floatingVideoCaptions}
+        videoSpeeches={floatingVideoSpeeches}
         showOptions={showOptions}
         options={currentChatState?.options?.map(option => ({
           label: option.label,
@@ -313,34 +303,6 @@ const Chat: React.FC = () => {
         }))}
         autoOpen={true}
       />
-
-      {isMapExpanded && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
-          onClick={() => setIsMapExpanded(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Visualização ampliada do mapa do IFCE"
-        >
-          <div
-            className="relative max-h-full max-w-5xl w-full"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setIsMapExpanded(false)}
-              className="absolute top-4 right-4 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white text-sm font-medium backdrop-blur focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-            >
-              Fechar
-            </button>
-            <img
-              src={mapImageSrc}
-              alt="Mapa do IFCE ampliado"
-              className="w-full h-full object-contain rounded-lg shadow-2xl"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
