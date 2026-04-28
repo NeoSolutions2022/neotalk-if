@@ -1,10 +1,7 @@
-import { defineConfig, Plugin } from "vite";
-import react from "@vitejs/plugin-react-swc";
-import path from "path";
-import { componentTagger } from "lovable-tagger";
-
-const WIDGET_ALLOWED_FRAME_ANCESTORS = process.env.WIDGET_FRAME_ANCESTORS ?? "'self' https://*.ifce.edu.br";
-
+const ALLOWED_HOSTS = process.env.WIDGET_PREVIEW_ALLOWED_HOSTS
+  ?.split(",")
+  .map((host) => host.trim())
+  .filter(Boolean);
 const WIDGET_HEADERS: Record<string, string> = {
   "Content-Security-Policy": [
     "default-src 'none'",
