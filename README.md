@@ -51,6 +51,8 @@ iframe.contentWindow.postMessage(
 ## Manual de integração em outro website
 
 Consulte o guia completo em `docs/WIDGET_EMBED_GUIDE.md`.
+- Implementação pronta para site host: `docs/WIDGET_HOST_IMPLEMENTATION.md` e `embeds/widget-loader.js`.
+
 );
 ```
 
