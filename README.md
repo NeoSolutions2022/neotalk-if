@@ -46,6 +46,11 @@ iframe.contentWindow.postMessage(
     }
   },
   'https://SEU_DOMINIO_DO_WIDGET'
+
+
+## Manual de integração em outro website
+
+Consulte o guia completo em `docs/WIDGET_EMBED_GUIDE.md`.
 );
 ```
 
