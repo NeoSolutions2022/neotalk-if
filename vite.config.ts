@@ -1,7 +1,19 @@
 import { defineConfig, Plugin } from "vite";
+const normalizeAllowedHost = (value: string) => {
+  const trimmed = value.trim();
+  if (!trimmed) return null;
+
+  try {
+    const withProtocol = /^https?:\/\//i.test(trimmed) ? trimmed : `https://${trimmed}`;
+    return new URL(withProtocol).host;
+  } catch {
+    return null;
+  }
+};
+
 const allowedHostsRaw = process.env.WIDGET_PREVIEW_ALLOWED_HOSTS;
 const ALLOWED_HOSTS = allowedHostsRaw
-  ? allowedHostsRaw.split(",").map((host) => host.trim()).filter(Boolean)
+  ? allowedHostsRaw.split(",").map(normalizeAllowedHost).filter((host): host is string => Boolean(host))
   : undefined;
 
 const WIDGET_HEADERS: Record<string, string> = {
