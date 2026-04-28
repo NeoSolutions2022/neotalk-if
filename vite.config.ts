@@ -18,19 +18,17 @@ const ALLOWED_HOSTS = allowedHostsRaw
 
 const WIDGET_ALLOWED_FRAME_ANCESTORS = process.env.WIDGET_FRAME_ANCESTORS || "'self'";
 
-const WIDGET_CSP = [
-  "default-src 'none'",
-  "script-src 'self'",
-  "style-src 'self' 'unsafe-inline'",
-  "img-src 'self' data:",
-  "font-src 'self' data:",
-  "connect-src 'self'",
-  "media-src 'self' https://player.vimeo.com https://vimeo.com",
-  "frame-src https://player.vimeo.com https://vimeo.com",
-  `frame-ancestors ${WIDGET_ALLOWED_FRAME_ANCESTORS}`,
-  "base-uri 'none'",
-  "form-action 'none'"
-].join('; ');
+const WIDGET_CSP = "default-src 'none'; " +
+  "script-src 'self'; " +
+  "style-src 'self' 'unsafe-inline'; " +
+  "img-src 'self' data:; " +
+  "font-src 'self' data:; " +
+  "connect-src 'self'; " +
+  "media-src 'self' https://player.vimeo.com https://vimeo.com; " +
+  "frame-src https://player.vimeo.com https://vimeo.com; " +
+  "frame-ancestors " + WIDGET_ALLOWED_FRAME_ANCESTORS + "; " +
+  "base-uri 'none'; " +
+  "form-action 'none'";
 const WIDGET_HEADERS = {
   "Referrer-Policy": "no-referrer",
   "Permissions-Policy": "accelerometer=(), autoplay=(self), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()",
