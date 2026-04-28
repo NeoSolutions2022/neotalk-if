@@ -25,7 +25,7 @@ const parseAllowedHosts = (raw) => {
   return parsed.length > 0 ? parsed : undefined;
 };
 
-const allowedHosts = parseAllowedHosts(process.env.WIDGET_PREVIEW_ALLOWED_HOSTS);
+const allowedHosts = parseAllowedHosts(process.env.WIDGET_PREVIEW_ALLOWED_HOSTS) || true;
 const frameAncestors = process.env.WIDGET_FRAME_ANCESTORS || "'self'";
 
 const widgetCsp =
