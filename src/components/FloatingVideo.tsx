@@ -1,10 +1,13 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Maximize2, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
 
 interface FloatingVideoProps {
   videoUrls: string[];
+  videoCaptions?: string[];
+  videoSpeeches?: string[];
+  referenceLinks?: Array<{ id: number; label: string; url: string }>;
   className?: string;
   showOptions?: boolean;
   options?: Array<{ label: string; onClick: () => void }>;
@@ -17,18 +20,89 @@ const extractVimeoId = (url: string) => {
   return url;
 };
 
-const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, className, showOptions, options, autoOpen = false }) => {
+const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions, videoSpeeches, referenceLinks, className, showOptions, options, autoOpen = false }) => {
   const [isExpanded, setIsExpanded] = useState(false);
   const [position, setPosition] = useState({ x: window.innerWidth - 300, y: window.innerHeight - 370 });
   const [isDragging, setIsDragging] = useState(false);
   const [dragStart, setDragStart] = useState({ x: 0, y: 0, startX: 0, startY: 0 });
   const [activeVideoIndex, setActiveVideoIndex] = useState(0);
   const normalizedVideoUrls = videoUrls.length > 0 ? videoUrls : ['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci'];
+  const normalizedSpeeches = videoSpeeches && videoSpeeches.length > 0 ? videoSpeeches : ['Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção para começar.'];
   const currentVideoId = extractVimeoId(normalizedVideoUrls[activeVideoIndex] ?? normalizedVideoUrls[0]);
+  const currentSpeech = normalizedSpeeches[activeVideoIndex] ?? normalizedSpeeches[0];
+  const [isSpeaking, setIsSpeaking] = useState(false);
+  const [dynamicSubtitle, setDynamicSubtitle] = useState('');
+  const subtitleTimerRef = useRef<number | null>(null);
+
+  const startDynamicSubtitle = useCallback((text: string) => {
+    if (subtitleTimerRef.current) {
+      window.clearInterval(subtitleTimerRef.current);
+      subtitleTimerRef.current = null;
+    }
+
+    const words = text.trim().split(/\s+/).filter(Boolean);
+    if (words.length === 0) {
+      setDynamicSubtitle('');
+      return;
+    }
+
+    let index = 0;
+    setDynamicSubtitle(words[0]);
+    subtitleTimerRef.current = window.setInterval(() => {
+      index += 1;
+      if (index >= words.length) {
+        if (subtitleTimerRef.current) {
+          window.clearInterval(subtitleTimerRef.current);
+          subtitleTimerRef.current = null;
+        }
+        setDynamicSubtitle(text);
+        return;
+      }
+
+      setDynamicSubtitle(words.slice(0, index + 1).join(' '));
+    }, 220);
+  }, []);
 
   React.useEffect(() => {
     setActiveVideoIndex(0);
   }, [videoUrls]);
+
+  const speakCurrentText = useCallback(() => {
+    if (typeof window === 'undefined' || !('speechSynthesis' in window) || !currentSpeech) return;
+
+    startDynamicSubtitle(currentSpeech);
+    window.speechSynthesis.cancel();
+    const utterance = new SpeechSynthesisUtterance(currentSpeech);
+    const voices = window.speechSynthesis.getVoices();
+    const ptBrVoice = voices.find((voice) => voice.lang.toLowerCase().startsWith('pt-br'));
+    if (ptBrVoice) {
+      utterance.voice = ptBrVoice;
+    }
+
+    utterance.lang = 'pt-BR';
+    utterance.rate = 1;
+    utterance.pitch = 1;
+    utterance.onstart = () => setIsSpeaking(true);
+    utterance.onend = () => setIsSpeaking(false);
+    utterance.onerror = () => setIsSpeaking(false);
+    window.speechSynthesis.speak(utterance);
+  }, [currentSpeech, startDynamicSubtitle]);
+
+  React.useEffect(() => {
+    if (!isExpanded || !currentSpeech) return;
+    speakCurrentText();
+
+    return () => {
+      if (subtitleTimerRef.current) {
+        window.clearInterval(subtitleTimerRef.current);
+        subtitleTimerRef.current = null;
+      }
+      if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+        window.speechSynthesis.cancel();
+      }
+      setIsSpeaking(false);
+    };
+  }, [currentSpeech, isExpanded, speakCurrentText]);
 
   const handleDragStart = useCallback((clientX: number, clientY: number) => {
     setIsDragging(true);
@@ -142,22 +216,26 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, className, sho
         aria-label="Avatar 3D em tela cheia"
       >
         <div className="flex-1 flex items-center justify-center p-4">
-          <div className="relative w-full max-w-4xl h-full max-h-[70vh] bg-floating-bg rounded-lg overflow-hidden">
-            <iframe
-              src={`https://player.vimeo.com/video/${currentVideoId}?h=0&badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&loop=1&muted=1&controls=0&transparent=0&portrait=0&title=0&byline=0`}
-              className="w-full h-full"
-              frameBorder="0"
-              allow="autoplay; fullscreen; picture-in-picture"
-              title="Avatar 3D da Lia"
-              style={{ clipPath: 'inset(0 0 30% 0)' }}
-            />
+          <div className="w-full max-w-4xl">
+            <div className="relative w-full h-[60vh] bg-floating-bg rounded-lg overflow-hidden">
+              <iframe
+                src={`https://player.vimeo.com/video/${currentVideoId}?h=0&badge=0&autopause=0&player_id=0&app_id=58479&autoplay=1&loop=1&muted=1&controls=0&transparent=0&portrait=0&title=0&byline=0`}
+                className="w-full h-full"
+                frameBorder="0"
+                allow="autoplay; fullscreen; picture-in-picture"
+                title="Avatar 3D da Lia"
+                style={{ clipPath: 'inset(0 0 30% 0)' }}
+              />
+              <div className="pointer-events-none absolute bottom-0 left-0 right-0 p-3 bg-white border-t border-gray-200">
+                <p className="text-sm md:text-base text-black font-medium text-center">{dynamicSubtitle || currentSpeech}</p>
+              </div>
+            </div>
           </div>
         </div>
 
-        {normalizedVideoUrls.length > 1 && (
-          <div className="px-4 pb-4">
-            <div className="max-w-4xl mx-auto flex gap-2">
-              {normalizedVideoUrls.map((_, index) => (
+        <div className="px-4 pb-4">
+          <div className="max-w-4xl mx-auto flex gap-2 flex-wrap">
+            {normalizedVideoUrls.length > 1 && normalizedVideoUrls.map((_, index) => (
                 <Button
                   key={index}
                   variant={activeVideoIndex === index ? 'default' : 'outline'}
@@ -167,9 +245,29 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, className, sho
                   Vídeo {index + 1}
                 </Button>
               ))}
-            </div>
+            <Button
+              variant={isSpeaking ? 'default' : 'outline'}
+              onClick={speakCurrentText}
+              className="min-w-36"
+            >
+              {isSpeaking ? 'Lia falando...' : 'Ouvir Lia'}
+            </Button>
           </div>
-        )}
+          {referenceLinks && referenceLinks.length > 0 && (
+            <div className="max-w-4xl mx-auto mt-3 grid gap-2">
+              {referenceLinks.map((link) => (
+                <Button
+                  key={link.id}
+                  variant="outline"
+                  className="justify-start text-left h-auto whitespace-normal"
+                  onClick={() => window.open(link.url, '_blank', 'noopener,noreferrer')}
+                >
+                  [{link.id}] {link.label} — {link.url}
+                </Button>
+              ))}
+            </div>
+          )}
+        </div>
         
         {/* Navigation Options - Sticky Footer */}
         {showOptions && options && options.length > 0 && (
