@@ -1,6 +1,6 @@
-import { defineConfig, Plugin } from "vite";
-const normalizeAllowedHost = (value: string) => {
-  const trimmed = value.trim();
+import { defineConfig } from "vite";
+const normalizeAllowedHost = (value) => {
+  const trimmed = String(value || "").trim();
   if (!trimmed) return null;
 
   try {
@@ -13,34 +13,35 @@ const normalizeAllowedHost = (value: string) => {
 
 const allowedHostsRaw = process.env.WIDGET_PREVIEW_ALLOWED_HOSTS;
 const ALLOWED_HOSTS = allowedHostsRaw
-  ? allowedHostsRaw.split(",").map(normalizeAllowedHost).filter((host): host is string => Boolean(host))
+  ? allowedHostsRaw.split(",").map(normalizeAllowedHost).filter(Boolean)
   : undefined;
 
 const WIDGET_ALLOWED_FRAME_ANCESTORS = process.env.WIDGET_FRAME_ANCESTORS || "'self'";
 
-const WIDGET_CSP =
-  "default-src 'none'; " +
-  "script-src 'self'; " +
-  "style-src 'self' 'unsafe-inline'; " +
-  "img-src 'self' data:; " +
-  "font-src 'self' data:; " +
-  "connect-src 'self'; " +
-  "media-src 'self' https://player.vimeo.com https://vimeo.com; " +
-  "frame-src https://player.vimeo.com https://vimeo.com; " +
-  `frame-ancestors ${WIDGET_ALLOWED_FRAME_ANCESTORS}; ` +
-  "base-uri 'none'; " +
-  "form-action 'none'";
-  "Content-Security-Policy": WIDGET_CSP,
+const WIDGET_CSP = [
+  "default-src 'none'",
+  "script-src 'self'",
+  "style-src 'self' 'unsafe-inline'",
+  "img-src 'self' data:",
+  "font-src 'self' data:",
+  "connect-src 'self'",
+  "media-src 'self' https://player.vimeo.com https://vimeo.com",
+  "frame-src https://player.vimeo.com https://vimeo.com",
+  `frame-ancestors ${WIDGET_ALLOWED_FRAME_ANCESTORS}`,
+  "base-uri 'none'",
+  "form-action 'none'"
+].join('; ');
+const WIDGET_HEADERS = {
   "Referrer-Policy": "no-referrer",
   "Permissions-Policy": "accelerometer=(), autoplay=(self), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()",
   "X-Content-Type-Options": "nosniff"
 };
 
-const widgetHeadersPlugin = (): Plugin => ({
+const widgetHeadersPlugin = () => ({
   name: "widget-security-headers",
   configureServer(server) {
     server.middlewares.use((req, res, next) => {
-      if (req.url?.startsWith("/widget")) {
+      if (req.url && req.url.startsWith("/widget")) {
         Object.entries(WIDGET_HEADERS).forEach(([key, value]) => res.setHeader(key, value));
       }
       next();
@@ -48,7 +49,7 @@ const widgetHeadersPlugin = (): Plugin => ({
   },
   configurePreviewServer(server) {
     server.middlewares.use((req, res, next) => {
-      if (req.url?.startsWith("/widget")) {
+      if (req.url && req.url.startsWith("/widget")) {
         Object.entries(WIDGET_HEADERS).forEach(([key, value]) => res.setHeader(key, value));
       }
       next();
