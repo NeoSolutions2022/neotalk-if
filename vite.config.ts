@@ -1,8 +1,8 @@
 import { defineConfig, Plugin } from "vite";
-  ?.split(",")
-  .map((host) => host.trim())
-  .filter(Boolean);
-const WIDGET_ALLOWED_FRAME_ANCESTORS = process.env.WIDGET_FRAME_ANCESTORS ?? "'self'";
+const allowedHostsRaw = process.env.WIDGET_PREVIEW_ALLOWED_HOSTS;
+const ALLOWED_HOSTS = allowedHostsRaw
+  ? allowedHostsRaw.split(",").map((host) => host.trim()).filter(Boolean)
+  : undefined;
 
 const WIDGET_HEADERS: Record<string, string> = {
   "Content-Security-Policy": [
