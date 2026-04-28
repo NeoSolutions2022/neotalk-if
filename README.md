@@ -1,73 +1,75 @@
-# Welcome to your Lovable project
+# NeoTalk IF - Chat/Avatar
 
-## Project info
-
-**URL**: https://lovable.dev/projects/8817677f-51b1-4ba3-9f0f-3d360e96761b
-
-## How can I edit this code?
-
-There are several ways of editing your application.
-
-**Use Lovable**
-
-Simply visit the [Lovable Project](https://lovable.dev/projects/8817677f-51b1-4ba3-9f0f-3d360e96761b) and start prompting.
-
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+## Desenvolvimento local
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
-git clone <YOUR_GIT_URL>
-
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
-
-# Step 3: Install the necessary dependencies.
 npm i
-
-# Step 4: Start the development server with auto-reloading and an instant preview.
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Rotas
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+- App principal: `/`
+- Widget isolado: `/widget`
 
-**Use GitHub Codespaces**
+A rota `/widget` renderiza apenas o chat/avatar e foi preparada para embed em iframe com política de segurança dedicada.
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
+## Embed seguro (iframe)
 
-## What technologies are used for this project?
+Exemplo recomendado (troque os domínios pelos seus):
 
-This project is built with:
+```html
+<iframe
+  src="https://SEU_DOMINIO/widget?allowedOrigins=https://portal.externo.com&autoOpen=true&initialState=start"
+  title="Assistente virtual IFCE"
+  referrerpolicy="no-referrer"
+  sandbox="allow-scripts allow-same-origin"
+  allow="autoplay"
+  loading="lazy"
+  style="width: 100%; max-width: 420px; height: 720px; border: 0;"
+></iframe>
+```
 
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
+## postMessage opcional com allowlist
 
-## How can I deploy this project?
+O widget aceita configuração opcional via `postMessage` apenas de `origins` que estejam na query string `allowedOrigins`.
 
-Simply open [Lovable](https://lovable.dev/projects/8817677f-51b1-4ba3-9f0f-3d360e96761b) and click on Share -> Publish.
+Mensagem aceita:
 
-## Can I connect a custom domain to my Lovable project?
+```js
+iframe.contentWindow.postMessage(
+  {
+    type: 'NEOTALK_WIDGET_CONFIG',
+    payload: {
+      autoOpen: true,
+      initialState: 'start'
+    }
+  },
+  'https://SEU_DOMINIO_DO_WIDGET'
+);
+```
 
-Yes, you can!
+Mensagem emitida pelo widget quando pronto:
 
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
+```js
+window.addEventListener('message', (event) => {
+  if (event.data?.type === 'NEOTALK_WIDGET_READY') {
+    console.log('Widget pronto', event.data.payload);
+  }
+});
+```
 
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+## Segurança implementada no widget
+
+- CSP restritiva para `/widget`.
+- `Referrer-Policy: no-referrer`.
+- `Permissions-Policy` mínima.
+- `frame-ancestors` com allowlist por variável `WIDGET_FRAME_ANCESTORS`.
+- Links externos abertos com `noopener,noreferrer`.
+- Sanitização de parâmetros externos (query string e `postMessage`).
+- Logs de erro sem campos sensíveis (cookie/session/token/password).
+
+## Qualidade
+
+- Teste básico de render da rota `/widget`: `npm run test`.
+- Script SAST (equivalente via lint com regras estáticas): `npm run sast`.

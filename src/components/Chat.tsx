@@ -19,7 +19,7 @@ interface ChatState {
   referenceLinkIds?: number[];
   next?: string;
   command?: string;
-  params?: any;
+  params?: { url?: string };
 }
 
 const referenceLinks: Record<number, { label: string; url: string }> = {
@@ -230,13 +230,23 @@ https://sisae.ifce.edu.br/`,
   }
 };
 
-const Chat: React.FC = () => {
-  const [currentState, setCurrentState] = useState('start');
+interface ChatProps {
+  initialState?: string;
+  autoOpen?: boolean;
+}
+
+const Chat: React.FC<ChatProps> = ({ initialState = 'start', autoOpen = true }) => {
+  const [currentState, setCurrentState] = useState(initialState);
   const [messages, setMessages] = useState<Array<{ id: string; message: string; isBot: boolean }>>([]);
   const [showOptions, setShowOptions] = useState(false);
   const [floatingVideoUrls, setFloatingVideoUrls] = useState<string[]>(['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci']);
   const [floatingVideoCaptions, setFloatingVideoCaptions] = useState<string[]>(['Olá! Eu sou a Lia.']);
   const [floatingVideoSpeeches, setFloatingVideoSpeeches] = useState<string[]>(['Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção para começar.']);
+
+  React.useEffect(() => {
+    setCurrentState(initialState);
+    setMessages([]);
+  }, [initialState]);
   const [floatingReferenceLinks, setFloatingReferenceLinks] = useState<Array<{ id: number; label: string; url: string }>>([]);
 
   React.useEffect(() => {
@@ -357,7 +367,7 @@ const Chat: React.FC = () => {
           label: option.label,
           onClick: () => handleOptionClick(option.next)
         }))}
-        autoOpen={true}
+        autoOpen={autoOpen}
       />
     </div>
   );
