@@ -13,10 +13,49 @@ interface ChatState {
   avatar?: string;
   message?: string;
   options?: ChatOption[];
+  videoUrls?: string[];
+  videoCaptions?: string[];
+  videoSpeeches?: string[];
+  referenceLinkIds?: number[];
   next?: string;
   command?: string;
   params?: any;
 }
+
+const referenceLinks: Record<number, { label: string; url: string }> = {
+  1: {
+    label: 'Calendário acadêmico',
+    url: 'https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/'
+  },
+  2: {
+    label: 'Página do estudante',
+    url: 'https://portal.ifce.edu.br/campus/fortaleza/estudante/'
+  },
+  3: {
+    label: 'Q-Acadêmico',
+    url: 'https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001'
+  },
+  4: {
+    label: 'SUAP',
+    url: 'https://suap.ifce.edu.br/'
+  },
+  5: {
+    label: 'Tutorial do e-mail institucional',
+    url: 'https://portal.ifce.edu.br/documents/19254/FOR_Documento_tutorial_de_como_criar_e_acessar_o_email_institucional_no_SUAP.pdf'
+  },
+  6: {
+    label: 'Sistemas do IFCE',
+    url: 'https://portal.ifce.edu.br/sistemas/'
+  },
+  7: {
+    label: 'Cursos do campus',
+    url: 'https://portal.ifce.edu.br/cursos/buscar/?campus=fortaleza'
+  },
+  8: {
+    label: 'Pós-graduação',
+    url: 'https://portal.ifce.edu.br/campus/fortaleza/pesquisa-remover/pos-graduacao/'
+  }
+};
 
 // ATENÇÃO:
 // - O avatar flutuante DEVE funcionar em mobile
@@ -26,63 +65,168 @@ interface ChatState {
 
 const chatFlow: Record<string, ChatState> = {
   start: {
-    type: 'message',
-    avatar: 'lia',
-    message: `👋 Bem-vindo(a) ao Mapa Interativo Acessível do IFCE Fortaleza.
-O NeoTalk nasceu para tornar o campus mais acessível por meio da tecnologia.
-Aqui, qualquer pessoa pode se orientar com autonomia, inclusão e inovação, utilizando Libras, texto ou áudio.
-
-Mais que mapas, criamos conexões. 🌐`,
-    next: 'menu_principal'
-  },
-  
-  menu_principal: {
     type: 'options',
-    message: 'Escolha uma das opções abaixo para assistir ao vídeo correspondente:',
+    avatar: 'lia',
+    videoUrls: ['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['Olá! Eu sou a Lia.'],
+    videoSpeeches: ['Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção para começar.'],
+    referenceLinkIds: [],
+    message: 'Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção abaixo.',
     options: [
-      { label: '🎥 Recepção', next: 'recepcao_video' },
-      { label: '🎥 NAPNE', next: 'napne_video' },
-      { label: '🎥 Biblioteca', next: 'biblioteca_video' }
+      { label: 'Sou novato(a)', next: 'novato_inicio' },
+      { label: 'Plataformas e acessos', next: 'plataformas_inicio' }
     ]
   },
 
-  recepcao_video: {
-    type: 'command',
-    command: 'setFloatingAvatarVideo',
-    params: {
-      url: 'https://vimeo.com/1129591813',
-      mute: true,
-      controls: false,
-      float: true,
-      resizable: true
-    },
-    next: 'menu_principal'
+  novato_inicio: {
+    type: 'options',
+    message: 'Se você está chegando agora, eu posso te ajudar com os primeiros acessos e orientações iniciais.',
+    options: [
+      { label: 'Matrícula de ingressante', next: 'novato_matricula' },
+      { label: 'Acessar sistemas', next: 'novato_sistemas' },
+      { label: 'Ver cursos do campus', next: 'novato_cursos' },
+      { label: 'Ver calendário acadêmico', next: 'novato_calendario' },
+      { label: 'Voltar ao início', next: 'start' }
+    ]
   },
 
-  napne_video: {
-    type: 'command',
-    command: 'setFloatingAvatarVideo',
-    params: {
-      url: 'https://vimeo.com/1130092406',
-      mute: true,
-      controls: false,
-      float: true,
-      resizable: true
-    },
-    next: 'menu_principal'
+  novato_matricula: {
+    type: 'options',
+    videoUrls: ['https://vimeo.com/1186307442?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['Matrícula de ingressante'],
+    videoSpeeches: ['Para ver datas, prazos e orientações gerais sobre matrícula, consulte o calendário acadêmico no link 1. Se quiser ver informações gerais para estudantes, consulte a página do estudante no link 2.'],
+    referenceLinkIds: [1, 2],
+    message: `Aqui você vai encontrar datas, prazos e orientações gerais sobre matrícula no calendário acadêmico:
+https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/
+
+Se quiser ver informações gerais para estudantes, acesse a página do estudante:
+https://portal.ifce.edu.br/campus/fortaleza/estudante/
+
+Se precisar falar com o setor responsável, a CCA atende em cca.fortal@ifce.edu.br e pelos telefones (85) 3455-3073 | (85) 3307-3660 | (85) 3307-3661.`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
   },
 
-  biblioteca_video: {
-    type: 'command',
-    command: 'setFloatingAvatarVideo',
-    params: {
-      url: 'https://vimeo.com/1140648743?share=copy&fl=sv&fe=ci',
-      mute: true,
-      controls: false,
-      float: true,
-      resizable: true
-    },
-    next: 'menu_principal'
+  novato_sistemas: {
+    type: 'options',
+    videoUrls: [
+      'https://vimeo.com/1186307550?share=copy&fl=sv&fe=ci',
+      'https://vimeo.com/1186307577?share=copy&fl=sv&fe=ci'
+    ],
+    videoCaptions: ['Q-Acadêmico e SUAP', 'E-mail e sistemas do IFCE'],
+    videoSpeeches: [
+      'Para acessar os sistemas principais, consulte o Q-Acadêmico no link 3 e o SUAP no link 4.',
+      'Para criar ou acessar o e-mail institucional, consulte o tutorial no link 5. Para outros acessos acadêmicos, consulte a página de sistemas do IFCE no link 6.'
+    ],
+    referenceLinkIds: [3, 4, 5, 6],
+    message: `Aqui estão os principais acessos para começar:
+Q-Acadêmico para matrícula, notas, histórico e horário:
+https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001
+SUAP para serviços institucionais:
+https://suap.ifce.edu.br/
+Tutorial do e-mail institucional:
+https://portal.ifce.edu.br/documents/19254/FOR_Documento_tutorial_de_como_criar_e_acessar_o_email_institucional_no_SUAP.pdf
+Página de sistemas do IFCE com outros acessos:
+https://portal.ifce.edu.br/sistemas/`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  novato_cursos: {
+    type: 'options',
+    videoUrls: ['https://vimeo.com/1186307468?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['Cursos do campus'],
+    videoSpeeches: ['Para ver a lista oficial de cursos do campus, consulte o link 7. Se quiser consultar a pós-graduação, vá para o link 8.'],
+    referenceLinkIds: [7, 8],
+    message: `Aqui você vai encontrar a lista oficial de cursos do IFCE Campus Fortaleza:
+https://portal.ifce.edu.br/cursos/buscar/?campus=fortaleza
+
+Se quiser consultar a pós-graduação, acesse:
+https://portal.ifce.edu.br/campus/fortaleza/pesquisa-remover/pos-graduacao/`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  novato_calendario: {
+    type: 'options',
+    videoUrls: ['https://vimeo.com/1186307512?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['Calendário acadêmico'],
+    videoSpeeches: ['Para ver as datas importantes do semestre, consulte o calendário acadêmico no link 1.'],
+    referenceLinkIds: [1],
+    message: `Aqui você vai encontrar as datas importantes do semestre no calendário acadêmico oficial:
+https://portal.ifce.edu.br/campus/fortaleza/estudante/calendario-academico/`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  plataformas_inicio: {
+    type: 'options',
+    message: 'Essas são as principais plataformas do IFCE para a vida acadêmica. Escolha uma opção.',
+    options: [
+      { label: 'Q-Acadêmico', next: 'plataformas_qacademico' },
+      { label: 'SUAP', next: 'plataformas_suap' },
+      { label: 'E-mail institucional', next: 'plataformas_email' },
+      { label: 'Moodle e sistemas', next: 'plataformas_moodle' },
+      { label: 'SisAE', next: 'plataformas_sisae' },
+      { label: 'Voltar ao início', next: 'start' }
+    ]
+  },
+
+  plataformas_qacademico: {
+    type: 'options',
+    videoUrls: ['https://vimeo.com/1186307604?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['Q-Acadêmico'],
+    videoSpeeches: ['Para matrícula, notas, histórico e horário, acesse o Q-Acadêmico no link 3.'],
+    referenceLinkIds: [3],
+    message: `Aqui você vai encontrar o Q-Acadêmico, usado para matrícula, notas, histórico e horário:
+https://antigo.qacademico.ifce.edu.br/qacademico/index.asp?t=1001`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  plataformas_suap: {
+    type: 'options',
+    videoUrls: ['https://vimeo.com/1186307392?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['SUAP'],
+    videoSpeeches: ['Para serviços institucionais, acesse o SUAP no link 4.'],
+    referenceLinkIds: [4],
+    message: `Aqui você vai encontrar o SUAP, usado para serviços institucionais:
+https://suap.ifce.edu.br/`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  plataformas_email: {
+    type: 'options',
+    videoUrls: [
+      'https://vimeo.com/1186307333?share=copy&fl=sv&fe=ci',
+      'https://vimeo.com/1186307364?share=copy&fl=sv&fe=ci'
+    ],
+    videoCaptions: ['E-mail institucional', 'Acesso e suporte'],
+    videoSpeeches: [
+      'Para criar e acessar o e-mail institucional, consulte o tutorial oficial no link 5.',
+      'Se precisar acessar o sistema base, use o SUAP no link 4. Se houver problema técnico, procure o suporte.'
+    ],
+    referenceLinkIds: [5, 4],
+    message: `Aqui você vai encontrar o tutorial oficial para criar e acessar o e-mail institucional:
+https://portal.ifce.edu.br/documents/19254/FOR_Documento_tutorial_de_como_criar_e_acessar_o_email_institucional_no_SUAP.pdf
+Se precisar acessar o sistema base, use o SUAP:
+https://suap.ifce.edu.br/
+Se houver problema técnico, o suporte atende em cti.fortaleza@ifce.edu.br.`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  plataformas_moodle: {
+    type: 'options',
+    videoUrls: ['https://vimeo.com/1186307722?share=copy&fl=sv&fe=ci'],
+    videoCaptions: ['Moodle e sistemas'],
+    videoSpeeches: ['Para encontrar os principais ambientes e acessos acadêmicos, consulte a página de sistemas do IFCE no link 6.'],
+    referenceLinkIds: [6],
+    message: `Aqui você vai encontrar a página oficial de sistemas do IFCE, com os principais ambientes e acessos acadêmicos:
+https://portal.ifce.edu.br/sistemas/`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
+  },
+
+  plataformas_sisae: {
+    type: 'options',
+    videoUrls: ['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci'],
+    message: `Aqui você vai encontrar o SisAE, sistema relacionado à assistência estudantil:
+https://sisae.ifce.edu.br/`,
+    options: [{ label: 'Voltar ao início', next: 'start' }]
   }
 };
 
@@ -90,25 +234,29 @@ const Chat: React.FC = () => {
   const [currentState, setCurrentState] = useState('start');
   const [messages, setMessages] = useState<Array<{ id: string; message: string; isBot: boolean }>>([]);
   const [showOptions, setShowOptions] = useState(false);
-  const [floatingVideoUrl, setFloatingVideoUrl] = useState('https://vimeo.com/1129591813');
-  const [isMapExpanded, setIsMapExpanded] = useState(false);
-
-  const mapImageSrc = React.useMemo(() => {
-    if (typeof window === 'undefined') {
-      return `${import.meta.env.BASE_URL ?? '/'}lovable-uploads/IFCE.jpg`;
-    }
-
-    try {
-      return new URL('lovable-uploads/IFCE.jpg', `${window.location.origin}${window.location.pathname}`).toString();
-    } catch (error) {
-      console.error('Erro ao resolver caminho do mapa:', error);
-      return `${import.meta.env.BASE_URL ?? '/'}lovable-uploads/IFCE.jpg`;
-    }
-  }, []);
+  const [floatingVideoUrls, setFloatingVideoUrls] = useState<string[]>(['https://vimeo.com/1186307419?share=copy&fl=sv&fe=ci']);
+  const [floatingVideoCaptions, setFloatingVideoCaptions] = useState<string[]>(['Olá! Eu sou a Lia.']);
+  const [floatingVideoSpeeches, setFloatingVideoSpeeches] = useState<string[]>(['Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção para começar.']);
+  const [floatingReferenceLinks, setFloatingReferenceLinks] = useState<Array<{ id: number; label: string; url: string }>>([]);
 
   React.useEffect(() => {
     const state = chatFlow[currentState];
     if (state) {
+      if (state.videoUrls && state.videoUrls.length > 0) {
+        setFloatingVideoUrls(state.videoUrls);
+      }
+      setFloatingVideoCaptions(state.videoCaptions && state.videoCaptions.length > 0 ? state.videoCaptions : ['Olá! Eu sou a Lia.']);
+      setFloatingVideoSpeeches(state.videoSpeeches && state.videoSpeeches.length > 0 ? state.videoSpeeches : ['Olá! Eu sou a Lia e posso te ajudar com dúvidas frequentes do IFCE Campus Fortaleza. Escolha uma opção para começar.']);
+      setFloatingReferenceLinks(
+        (state.referenceLinkIds ?? [])
+          .map((linkId) => {
+            const link = referenceLinks[linkId];
+            if (!link) return null;
+            return { id: linkId, ...link };
+          })
+          .filter((link): link is { id: number; label: string; url: string } => link !== null)
+      );
+
       // Only add to messages if it's not a command type
       if (state.type !== 'command' && state.message) {
         const messageId = `${currentState}-${Date.now()}`;
@@ -123,7 +271,7 @@ const Chat: React.FC = () => {
         setShowOptions(true);
       } else if (state.type === 'command') {
         if (state.command === 'setFloatingAvatarVideo' && state.params?.url) {
-          setFloatingVideoUrl(state.params.url);
+          setFloatingVideoUrls([state.params.url]);
         }
         setShowOptions(false);
         if (state.next) {
@@ -154,19 +302,6 @@ const Chat: React.FC = () => {
     setCurrentState(nextState);
   };
 
-  React.useEffect(() => {
-    if (!isMapExpanded) return;
-
-    const handleKeyDown = (event: KeyboardEvent) => {
-      if (event.key === 'Escape') {
-        setIsMapExpanded(false);
-      }
-    };
-
-    window.addEventListener('keydown', handleKeyDown);
-    return () => window.removeEventListener('keydown', handleKeyDown);
-  }, [isMapExpanded]);
-
   const currentChatState = chatFlow[currentState];
 
   return (
@@ -181,23 +316,8 @@ const Chat: React.FC = () => {
         <h1 className="text-xl font-bold text-foreground">Área de Conversação</h1>
       </div>
 
-      {/* Messages and Maps */}
+      {/* Messages */}
       <div className="flex-1 overflow-y-auto p-4 space-y-4">
-        <div className="w-full">
-          <button
-            type="button"
-            onClick={() => setIsMapExpanded(true)}
-            className="w-full max-w-md mx-auto block focus:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 focus-visible:ring-offset-background"
-            aria-label="Ampliar mapa do IFCE"
-          >
-            <img
-              src={mapImageSrc}
-              alt="Mapa do IFCE"
-              className="w-full rounded-lg shadow cursor-zoom-in"
-            />
-          </button>
-        </div>
-
         {messages.map((msg) => (
           <ChatBubble
             key={msg.id}
@@ -228,7 +348,10 @@ const Chat: React.FC = () => {
 
       {/* Floating Video */}
       <FloatingVideo
-        videoUrl={floatingVideoUrl}
+        videoUrls={floatingVideoUrls}
+        videoCaptions={floatingVideoCaptions}
+        videoSpeeches={floatingVideoSpeeches}
+        referenceLinks={floatingReferenceLinks}
         showOptions={showOptions}
         options={currentChatState?.options?.map(option => ({
           label: option.label,
@@ -236,34 +359,6 @@ const Chat: React.FC = () => {
         }))}
         autoOpen={true}
       />
-
-      {isMapExpanded && (
-        <div
-          className="fixed inset-0 z-50 bg-black/80 flex items-center justify-center p-4"
-          onClick={() => setIsMapExpanded(false)}
-          role="dialog"
-          aria-modal="true"
-          aria-label="Visualização ampliada do mapa do IFCE"
-        >
-          <div
-            className="relative max-h-full max-w-5xl w-full"
-            onClick={(event) => event.stopPropagation()}
-          >
-            <button
-              type="button"
-              onClick={() => setIsMapExpanded(false)}
-              className="absolute top-4 right-4 px-4 py-2 rounded-full border border-white/30 bg-white/10 text-white text-sm font-medium backdrop-blur focus:outline-none focus-visible:ring-2 focus-visible:ring-white focus-visible:ring-offset-2 focus-visible:ring-offset-black"
-            >
-              Fechar
-            </button>
-            <img
-              src={mapImageSrc}
-              alt="Mapa do IFCE ampliado"
-              className="w-full h-full object-contain rounded-lg shadow-2xl"
-            />
-          </div>
-        </div>
-      )}
     </div>
   );
 };
