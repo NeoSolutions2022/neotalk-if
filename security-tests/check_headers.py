@@ -9,6 +9,12 @@ import sys
 from urllib import request, error
 from typing import Tuple, Dict, Optional
 
+
+EXPECTED_POLICY = {
+    "/": "app",
+    "/widget": "widget",
+}
+
 EXPECTED = {
     "/": {
         "x-content-type-options": "nosniff",
@@ -54,6 +60,13 @@ def check_route(base_url: str, route: str) -> int:
     csp = headers.get("content-security-policy")
     print(f"  content-security-policy: {csp}")
     if not csp:
+        failures += 1
+
+    policy = headers.get("x-neotalk-policy")
+    print(f"  x-neotalk-policy: {policy}")
+    expected_policy = EXPECTED_POLICY[route]
+    if policy != expected_policy:
+        print(f"  [warn] expected x-neotalk-policy={expected_policy}; got {policy}")
         failures += 1
 
     if route == "/widget" and "x-frame-options" in headers:

@@ -131,3 +131,25 @@ Foi adicionado header de diagnóstico de rota no Nginx para diferenciar origem v
 - `X-Neotalk-Policy: widget` em `location = /widget` e `location ^~ /widget/`
 
 Se no domínio público `/widget` não retornar `X-Neotalk-Policy: widget`, o tráfego não está chegando com a política do origin (ou está sendo sobrescrito no edge).
+
+## Evidência recebida do ambiente de homologação (30/04/2026)
+
+Os `curl -I` fornecidos para `/`, `/widget` e `/widget/` retornam exatamente o mesmo conjunto de headers, incluindo:
+
+- `Content-Security-Policy: ... frame-ancestors 'self'`
+- `X-Frame-Options: SAMEORIGIN`
+- mesmo `Content-Length`, `Etag` e `Last-Modified`
+
+Isso reforça que **a política específica de `/widget` não está ativa no runtime publicado**.  
+A causa mais provável passa a ser:
+
+1. imagem/config antiga ainda em execução; ou
+2. config de Nginx final sem os blocos `location = /widget` e `location ^~ /widget/`; ou
+3. proxy/edge sobrescrevendo para política global.
+
+Como prova adicional, após novo deploy, validar presença de:
+
+- `X-Neotalk-Policy: app` em `/`
+- `X-Neotalk-Policy: widget` em `/widget` e `/widget/`
+
+Se esse header não aparecer, o tráfego/headers não estão vindo da config nova do origin.
