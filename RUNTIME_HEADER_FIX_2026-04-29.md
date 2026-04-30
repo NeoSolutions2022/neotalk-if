@@ -79,3 +79,8 @@ Se `/widget` continuar com `frame-ancestors 'self'`, revisar política de header
 
 Para deixar explícito, o `nginx.conf` agora usa diretamente `"${WIDGET_FRAME_ANCESTORS}"` na variável interna de CSP do `/widget`.  
 Isso exige que o deploy (EasyPanel/container entrypoint) faça substituição de variável de ambiente no template antes de iniciar o Nginx (ex.: `envsubst`).
+
+## Correção adicional após validação de recusa de embed
+
+Foi removida a dependência direta de placeholder `${WIDGET_FRAME_ANCESTORS}` no `nginx.conf` de runtime, pois sem templating garantido isso pode gerar política inválida/inefetiva.  
+A allowlist de `/widget` voltou a ficar explícita no arquivo de runtime para garantir comportamento determinístico no container atual.
