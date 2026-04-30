@@ -6,7 +6,7 @@ server {
   index index.html;
 
   # Widget allowlist is injected from environment at container startup.
-  set $widget_frame_ancestors "'self' https://infra-neotalk-if-demo.k3p3ex.easypanel.host";
+  set $widget_frame_ancestors "${WIDGET_FRAME_ANCESTORS}";
 
   # Widget route: embeddable only by explicit allowlist (no open embed)
   location = /widget {
