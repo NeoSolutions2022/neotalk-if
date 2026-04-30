@@ -17,7 +17,7 @@ server {
     # Intentionally omit X-Frame-Options here because SAMEORIGIN would block authorized third-party embeds.
     add_header Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; media-src 'self' https://player.vimeo.com https://vimeo.com; frame-src https://player.vimeo.com https://vimeo.com; frame-ancestors $widget_frame_ancestors; base-uri 'none'; form-action 'none'" always;
 
-    try_files $uri $uri/ /index.html;
+    try_files $uri $uri/ @widget_spa;
   }
 
   # Support /widget/ (trailing slash) with same header policy.
@@ -28,7 +28,19 @@ server {
     add_header X-Neotalk-Policy "widget" always;
     add_header Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; media-src 'self' https://player.vimeo.com https://vimeo.com; frame-src https://player.vimeo.com https://vimeo.com; frame-ancestors $widget_frame_ancestors; base-uri 'none'; form-action 'none'" always;
 
-    try_files $uri $uri/ /index.html;
+    try_files $uri $uri/ @widget_spa;
+  }
+
+
+  # Internal SPA fallback for widget routes, preserving widget-specific headers.
+  location @widget_spa {
+    internal;
+    add_header X-Content-Type-Options "nosniff" always;
+    add_header Referrer-Policy "no-referrer" always;
+    add_header Permissions-Policy "accelerometer=(), autoplay=(self), camera=(), geolocation=(), gyroscope=(), microphone=(), payment=(), usb=()" always;
+    add_header X-Neotalk-Policy "widget" always;
+    add_header Content-Security-Policy "default-src 'none'; script-src 'self'; style-src 'self' 'unsafe-inline'; img-src 'self' data:; font-src 'self' data:; connect-src 'self'; media-src 'self' https://player.vimeo.com https://vimeo.com; frame-src https://player.vimeo.com https://vimeo.com; frame-ancestors $widget_frame_ancestors; base-uri 'none'; form-action 'none'" always;
+    try_files /index.html =404;
   }
 
   # Default/app routes: protected against clickjacking (not embeddable)

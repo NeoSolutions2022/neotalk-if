@@ -153,3 +153,17 @@ Como prova adicional, após novo deploy, validar presença de:
 - `X-Neotalk-Policy: widget` em `/widget` e `/widget/`
 
 Se esse header não aparecer, o tráfego/headers não estão vindo da config nova do origin.
+
+## Causa técnica confirmada (com base no comportamento reportado)
+
+O padrão observado (`/widget` retornando `X-Neotalk-Policy: app`) confirma que a resposta final estava sendo servida pelo fallback da rota global.  
+Isso ocorre porque `try_files ... /index.html` na location do widget gera redirect interno para `/index.html`, e os headers finais passam a refletir a location que serve esse recurso (global), não a location inicial.
+
+## Ajuste definitivo aplicado
+
+Foi alterado o fallback de widget para usar location nomeada interna:
+
+- `try_files $uri $uri/ @widget_spa;`
+- `location @widget_spa { ... headers do widget ...; try_files /index.html =404; }`
+
+Assim, `/widget` e `/widget/` preservam headers específicos do widget na resposta final (sem XFO e com `frame-ancestors` de allowlist).
