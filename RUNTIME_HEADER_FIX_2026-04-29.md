@@ -74,3 +74,8 @@ curl -I "https://infra-neotalkif.k3p3ex.easypanel.host/widget"
 ```
 
 Se `/widget` continuar com `frame-ancestors 'self'`, revisar política de headers no EasyPanel/proxy e remover sobrescrita conflitante.
+
+## Atualização de alinhamento com variável de ambiente
+
+Para deixar explícito, o `nginx.conf` agora usa diretamente `"${WIDGET_FRAME_ANCESTORS}"` na variável interna de CSP do `/widget`.  
+Isso exige que o deploy (EasyPanel/container entrypoint) faça substituição de variável de ambiente no template antes de iniciar o Nginx (ex.: `envsubst`).
