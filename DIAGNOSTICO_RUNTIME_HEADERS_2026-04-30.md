@@ -122,3 +122,12 @@ python check.py --base-url "https://infra-neotalkif.k3p3ex.easypanel.host/"
 ```
 
 Se `/widget` continuar vindo com XFO/CSP global, a causa provável passa a ser sobrescrita no EasyPanel/proxy/edge ou deploy desatualizado.
+
+## Atualização para diagnóstico de bloqueio externo
+
+Foi adicionado header de diagnóstico de rota no Nginx para diferenciar origem vs sobrescrita no proxy:
+
+- `X-Neotalk-Policy: app` em `location /`
+- `X-Neotalk-Policy: widget` em `location = /widget` e `location ^~ /widget/`
+
+Se no domínio público `/widget` não retornar `X-Neotalk-Policy: widget`, o tráfego não está chegando com a política do origin (ou está sendo sobrescrito no edge).
