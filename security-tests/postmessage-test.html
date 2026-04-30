@@ -1,0 +1,14 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>postMessage Test</title></head>
+<body>
+<iframe id="widget" src="https://infra-neotalkif.k3p3ex.easypanel.host/widget?allowedOrigins=http://localhost:5500" width="500" height="400"></iframe>
+<script>
+const widget = document.getElementById('widget');
+function send(msg){widget.contentWindow.postMessage(msg, 'https://infra-neotalkif.k3p3ex.easypanel.host');}
+setTimeout(()=>send({type:'INVALID_TYPE'}),1500);
+setTimeout(()=>send({type:'NEOTALK_WIDGET_CONFIG',payload:{autoOpen:'yes'}}),2000);
+setTimeout(()=>send('not-an-object'),2500);
+setTimeout(()=>send({type:'NEOTALK_WIDGET_CONFIG',payload:{initialState:'<script>alert(1)</script>'}}),3000);
+</script>
+</body></html>
