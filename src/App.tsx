@@ -6,8 +6,6 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import NotFound from "./pages/NotFound";
 import Widget from "./pages/Widget";
-          <Route path="/widget" element={<Widget />} />
-import Widget from "./pages/Widget";
 
 const queryClient = new QueryClient();
 

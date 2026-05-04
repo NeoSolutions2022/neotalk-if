@@ -1,0 +1,9 @@
+<!doctype html>
+<html>
+<head><meta charset="utf-8"><title>Embed Test</title></head>
+<body>
+<h1>Embed validation page</h1>
+<iframe id="rootApp" src="https://infra-neotalkif.k3p3ex.easypanel.host/" width="500" height="400"></iframe>
+<iframe id="widget" src="https://infra-neotalkif.k3p3ex.easypanel.host/widget?allowedOrigins=http://localhost:5500" width="500" height="400"></iframe>
+<p>Expected: root app blocked by frame policy, widget controlled by frame-ancestors.</p>
+</body></html>
