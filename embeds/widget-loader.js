@@ -1,7 +1,39 @@
 (function () {
   const CURRENT_SCRIPT = document.currentScript;
+
+  const logLoaderError = function (code, details) {
+    console.error('[widget-loader-error]', {
+      code: code,
+      timestamp: new Date().toISOString(),
+      details: details || undefined
+    });
+  };
+
+  const toOrigin = function (value) {
+    try {
+      return new URL(value).origin;
+    } catch {
+      return null;
+    }
+  };
+
   const WIDGET_BASE_URL = CURRENT_SCRIPT?.dataset?.widgetUrl || 'https://widget.seudominio.com/widget';
-  const ALLOWED_ORIGIN = CURRENT_SCRIPT?.dataset?.widgetOrigin || new URL(WIDGET_BASE_URL).origin;
+  const parsedOriginFromUrl = toOrigin(WIDGET_BASE_URL);
+
+  if (!parsedOriginFromUrl) {
+    logLoaderError('invalid_widget_url', { widgetUrl: WIDGET_BASE_URL });
+    return;
+  }
+
+  const configuredOrigin = CURRENT_SCRIPT?.dataset?.widgetOrigin;
+  const parsedConfiguredOrigin = configuredOrigin ? toOrigin(configuredOrigin) : null;
+
+  if (configuredOrigin && !parsedConfiguredOrigin) {
+    logLoaderError('invalid_widget_origin', { widgetOrigin: configuredOrigin });
+    return;
+  }
+
+  const ALLOWED_ORIGIN = parsedConfiguredOrigin || parsedOriginFromUrl;
   const POSITION_RIGHT = CURRENT_SCRIPT?.dataset?.right || '16px';
   const POSITION_BOTTOM = CURRENT_SCRIPT?.dataset?.bottom || '16px';
 
@@ -89,17 +121,19 @@
 
   window.addEventListener('message', function (event) {
     if (event.origin !== ALLOWED_ORIGIN) return;
-    if (event.data?.type === 'NEOTALK_WIDGET_READY') {
-      iframe.contentWindow?.postMessage(
-        {
-          type: 'NEOTALK_WIDGET_CONFIG',
-          payload: {
-            autoOpen: true,
-            initialState: 'start'
-          }
-        },
-        ALLOWED_ORIGIN
-      );
-    }
+    if (event.source !== iframe.contentWindow) return;
+    if (!event.data || typeof event.data !== 'object') return;
+    if (event.data.type !== 'NEOTALK_WIDGET_READY') return;
+
+    iframe.contentWindow?.postMessage(
+      {
+        type: 'NEOTALK_WIDGET_CONFIG',
+        payload: {
+          autoOpen: true,
+          initialState: 'start'
+        }
+      },
+      ALLOWED_ORIGIN
+    );
   });
 })();
