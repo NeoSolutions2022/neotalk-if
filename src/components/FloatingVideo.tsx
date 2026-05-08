@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useRef } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { X, Maximize2, Minimize2 } from 'lucide-react';
 import { cn } from '@/lib/utils';
@@ -13,6 +13,39 @@ interface FloatingVideoProps {
   options?: Array<{ label: string; onClick: () => void }>;
   autoOpen?: boolean;
 }
+
+
+
+const FEMALE_VOICE_HINTS = [
+  'female', 'mulher', 'feminina', 'woman', 'girl',
+  'maria', 'helena', 'luciana', 'camila', 'bruna',
+  'sofia', 'leticia', 'lia', 'vitória', 'vitoria',
+  'google português do brasil', 'google português', 'google portuguese',
+  'microsoft maria', 'microsoft francisca', 'microsoft heloisa'
+];
+
+const scoreVoice = (voice: SpeechSynthesisVoice) => {
+  const name = voice.name.toLowerCase();
+  const lang = voice.lang.toLowerCase();
+
+  let score = 0;
+  if (lang.startsWith('pt-br')) score += 120;
+  else if (lang.startsWith('pt')) score += 90;
+
+  if (FEMALE_VOICE_HINTS.some((hint) => name.includes(hint))) score += 80;
+  if (voice.localService) score += 10;
+
+  return score;
+};
+
+const selectPreferredVoice = (voices: SpeechSynthesisVoice[]) => {
+  if (voices.length === 0) return undefined;
+
+  const sorted = [...voices].sort((a, b) => scoreVoice(b) - scoreVoice(a));
+  const best = sorted[0];
+
+  return scoreVoice(best) > 0 ? best : undefined;
+};
 
 const extractVimeoId = (url: string) => {
   const match = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
@@ -63,7 +96,7 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
     }, 220);
   }, []);
 
-  React.useEffect(() => {
+  useEffect(() => {
     setActiveVideoIndex(0);
   }, [videoUrls]);
 
@@ -72,14 +105,18 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
 
     startDynamicSubtitle(currentSpeech);
     window.speechSynthesis.cancel();
+
     const utterance = new SpeechSynthesisUtterance(currentSpeech);
     const voices = window.speechSynthesis.getVoices();
-    const ptBrVoice = voices.find((voice) => voice.lang.toLowerCase().startsWith('pt-br'));
-    if (ptBrVoice) {
-      utterance.voice = ptBrVoice;
+    const preferredVoice = selectPreferredVoice(voices);
+
+    if (preferredVoice) {
+      utterance.voice = preferredVoice;
+      utterance.lang = preferredVoice.lang;
+    } else {
+      utterance.lang = 'pt-BR';
     }
 
-    utterance.lang = 'pt-BR';
     utterance.rate = 1;
     utterance.pitch = 1;
     utterance.onstart = () => setIsSpeaking(true);
@@ -88,7 +125,7 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
     window.speechSynthesis.speak(utterance);
   }, [currentSpeech, startDynamicSubtitle]);
 
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isExpanded || !currentSpeech) return;
     speakCurrentText();
 
@@ -148,7 +185,7 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
   }, [handleDragStart]);
 
   // Global event handlers
-  React.useEffect(() => {
+  useEffect(() => {
     if (!isDragging) return;
 
     const handleMouseMove = (e: MouseEvent) => {
@@ -188,14 +225,14 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
   }, [isDragging, handleDragMove, handleDragEnd]);
 
   // Auto-open Avatar 3D on mount if autoOpen is true
-  React.useEffect(() => {
+  useEffect(() => {
     if (autoOpen) {
       setIsExpanded(true);
     }
   }, [autoOpen]);
 
   // Handle window resize to keep avatar in bounds
-  React.useEffect(() => {
+  useEffect(() => {
     const handleResize = () => {
       setPosition(prev => ({
         x: Math.min(prev.x, window.innerWidth - 280),
@@ -247,7 +284,20 @@ const FloatingVideo: React.FC<FloatingVideoProps> = ({ videoUrls, videoCaptions,
               ))}
             <Button
               variant={isSpeaking ? 'default' : 'outline'}
-              onClick={speakCurrentText}
+              onClick={() => {
+                if (isSpeaking) {
+                  if (subtitleTimerRef.current) {
+                    window.clearInterval(subtitleTimerRef.current);
+                    subtitleTimerRef.current = null;
+                  }
+                  if (typeof window !== 'undefined' && 'speechSynthesis' in window) {
+                    window.speechSynthesis.cancel();
+                  }
+                  setIsSpeaking(false);
+                } else {
+                  speakCurrentText();
+                }
+              }}
               className="min-w-36"
             >
               {isSpeaking ? 'Lia falando...' : 'Ouvir Lia'}
